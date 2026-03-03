@@ -1,4 +1,6 @@
-@請把內容翻譯成中文
+@請把內容翻譯成中文 (翻譯成中文, 並保留原來英文內容)
+- 英文原文 + 對應中文翻譯
+- 先整段英文、下一段完整中文
 @what is the answer using C?
 @1768-merge-strings-alternately.c 請詳細說明內容
 @1768-merge-strings-alternately.c 請畫圖說明
