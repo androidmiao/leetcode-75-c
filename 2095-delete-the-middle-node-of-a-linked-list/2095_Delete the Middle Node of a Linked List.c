@@ -1,3 +1,9 @@
+//Linked List: https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/description/?envType=study-plan-v2&envId=leetcode-75
+/*
+Hint1: If a point with a speed s moves n units in a given time, a point with speed 2 * s will move 2 * n units at the same time. Can you use this to find the middle node of a linked list?
+Hint2: If you are given the middle node, the node before it, and the node after it, how can you modify the linked list?
+*/
+
 /*
 ## Idea
 Use fast and slow pointers.
