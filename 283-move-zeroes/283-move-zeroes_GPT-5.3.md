@@ -1,9 +1,8 @@
-@請把內容翻譯成中文 (翻譯成中文, 並保留原來英文內容)
+@請把內容翻譯成中文 (保留原來英文內容, 並翻譯成中文放到後面)
 - 英文原文 + 對應中文翻譯
-- 先整段英文、下一段完整中文
-@what is the answer using C?
-@1768-merge-strings-alternately.c 請詳細說明內容
-@1768-merge-strings-alternately.c 請畫圖說明
+- 先整段英文、下一段完整翻譯中文
+@Description.md 請使用Ｃ語言來實作並把結果存到 @1768-merge-strings-alternately.c 請詳細說明內容, 逐行中文註解
+@1768-merge-strings-alternately.c 請畫圖說明並記錄到這個檔案中
 @畫「記憶體位址/陣列索引版」的圖
 @這個解法跟你的解法哪一個比較好？
 @Solution.md 的說明，跟你寫的解法有一樣嗎？
