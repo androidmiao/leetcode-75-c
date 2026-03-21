@@ -10,54 +10,9 @@ gcc -Wall -Wextra -std=c99 -c /Users/alex.miao/Documents/GitHub/leetcode-75-c/34
 ```
 結果通過，沒有語法錯誤。
 
-
-
-
-# 347. Top K Frequent Elements
-
-這題我採用 standalone 風格建立，先放一個單檔 C 解法與基本題解文件。
-
-## 為什麼不用排序
-
-題目的 follow-up 明確要求時間複雜度要優於 `O(n log n)`，所以如果把所有元素依照頻率排序，方向上就不夠好。
-
-## 為什麼這份用 bucket sort
-
-這題有兩個很好用的條件：
-
-- 值域固定：`-10^4 <= nums[i] <= 10^4`
-- 頻率上限固定：最多就是 `numsSize`
-
-這代表：
-
-1. 可以用固定大小陣列做 frequency counting
-2. 可以用 frequency 當 bucket index
-
-整體流程就是：
-
-1. 統計每個值出現幾次
-2. 把不同元素丟進對應頻率桶
-3. 從高頻桶往低頻桶取前 `k` 個
-
-## 這份 C 寫法的重點
-
-- `frequencies`：記錄每個值出現幾次
-- `uniqueValues`：只保留不同元素，避免後續重複處理
-- `bucketSizes`：先統計每個桶要開多大
-- `buckets`：真的存放該頻率有哪些數值
-- `bucketWriteIndex`：記錄每個桶目前寫到哪裡
-
-## 複雜度
-
-- 時間：`O(n + 20001)`
-- 空間：`O(n + 20001)`
-
-這在題目限制下可以視為線性解。
-
-
 ---
 
-@[347_Top K Frequent Elements_Editorial.md](347_Top K Frequent Elements/347_Top K Frequent Elements_Editorial.md) 跟你寫的解法有一樣嗎？ 如果不一樣, 哪一個比較好？
+@347_Top K Frequent Elements_Editorial.md 跟你寫的解法有一樣嗎？ 如果不一樣, 哪一個比較好？ 並把結果寫進*_GPT-5.4.md
 
 不一樣。
 
