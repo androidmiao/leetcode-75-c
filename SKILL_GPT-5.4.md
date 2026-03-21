@@ -13,7 +13,7 @@ Use this skill for tasks inside the `leetcode-75-c` repository when the user wan
 - prepare a problem with a Google LeetCode interview focus
 - sync LeetCode Description / Editorial content into local markdown notes
 - compare the current implementation against editorial notes
-- maintain `README.md`, `*_Description.md`, `*_Editorial.md`, or `*_Sonnet-4.6.md`
+- maintain `README.md`, `*_Description.md`, `*_Editorial.md`, or `*_GPT-*.md`
 
 ## Folder styles
 
@@ -26,7 +26,7 @@ Usually contains:
 - one `Problem Name.c`
 - `*_Description.md`
 - `*_Editorial.md`
-- `*_Sonnet-4.6.md`
+- `*_GPT-*.md`
 
 This is the default and preferred style for new problems.
 
@@ -53,7 +53,7 @@ For a new problem, default to standalone style unless the user explicitly asks f
 - optional companions when requested or clearly implied by the task:
   - `*_Description.md`
   - `*_Editorial.md`
-  - `*_Sonnet-4.6.md`
+  - `*_GPT-*.md`
 
 Use the nearest existing naming pattern in the repo. Do not normalize the entire repository.
 
@@ -74,19 +74,7 @@ If the user provides a LeetCode problem link during initialization, treat page s
 - `*_Description.md` has been synced from the Description page
 - `*_Editorial.md` has been synced from the Editorial page when the editorial is accessible
 - `*_Editorial.md` contains the full Solution section structure as repo-maintainable English notes plus corresponding Chinese translation / paraphrase
-- `*_Sonnet-4.6.md` has been created with an implementation vs. editorial comparison (see below)
-- the `.c` solution file contains detailed Chinese inline comments and ASCII diagram(s) in the top-of-file block comment (see "Chinese annotation and diagram rules" below)
 - the final report clearly states whether the Editorial content came from the live authenticated LeetCode session or from a fallback source because access was blocked
-
-### Creating `*_Sonnet-4.6.md` during initialization
-
-After both the `.c` solution and `*_Editorial.md` are in place, always create `*_Sonnet-4.6.md` as part of initialization. It must contain:
-
-1. **Implementation vs. Editorial comparison** — state whether the `.c` solution is the same algorithm as one of the editorial approaches, a variation, or a different approach entirely.
-2. **Which approach is better** — compare along: time complexity, space complexity, interview suitability, and C implementation difficulty. Use a markdown table when helpful.
-3. **Baseline vs. recommended** — name the baseline approach and the recommended approach, and explain why the recommended one is better for interview discussion.
-
-Write the full English section first, then the full Chinese translation / paraphrase after it.
 
 ## Working method
 
@@ -116,39 +104,21 @@ When the user explicitly says the goal is "for Google LeetCode interview" or equ
    - explicit comparator / ordering logic
    - complexity tradeoff that can be defended aloud
 5. If the theoretically best editorial approach is too implementation-heavy for a strong interview answer in standalone C, prefer the best balanced approach rather than the most exotic one.
-6. When writing notes into `*_Sonnet-4.6.md`, explicitly state:
+6. When writing notes into `*_GPT-*.md`, explicitly state:
    - the baseline approach
    - the recommended Google interview approach
    - why that recommendation is better for interview discussion
-
-### Chinese annotation and diagram rules
-
-Every `.c` solution produced or updated in this repo must include:
-
-1. **Top-of-file block comment** containing:
-   - problem number, title, difficulty, time/space complexity
-   - a step-by-step algorithm walkthrough with at least one concrete example
-   - ASCII diagram(s) showing the key pointer manipulation or data-structure state changes at each step
-   - for linked-list problems: diagrams for the pointer-finding phase (e.g. fast/slow), the reversal phase, the comparison phase, and the restoration phase
-   - for tree/graph problems: ASCII tree or adjacency sketches showing before/after state
-2. **Chinese inline comments** on every non-trivial line or logical block:
-   - what the variable represents
-   - why the condition is written the way it is
-   - what invariant holds at that point
-3. Prefer `/*  */` block comments for multi-line diagrams; use `/* … */` or `//` for inline notes.
-4. Keep the code itself unchanged; add comments only around existing logic.
-5. Use the top-of-file overview block first, then keep inline comments concise (1–2 lines each).
-
-This annotation step is **part of initialization** when a LeetCode link is provided. It must be applied to the `.c` file before initialization is considered complete.
 
 ### When implementing from the Description
 
 If the user asks you to use the problem description to implement the solution in the target `.c` file:
 
 1. Write the final LeetCode-submit version directly into the requested `.c` file.
-2. Apply the Chinese annotation and diagram rules above as part of the same step.
-3. Keep the code readable even when the comments are dense.
-4. Use a top-of-file overview comment plus local inline comments rather than turning the code into noise.
+2. Keep the code readable even when the comments are dense.
+3. If the user asks for detailed explanation, add detailed Chinese explanation comments.
+4. If the user asks for line-by-line comments, annotate each major line or small block in Chinese.
+5. If the user asks for a diagram, prefer an ASCII diagram in a top-of-file comment unless they explicitly want markdown instead.
+6. Use a top-of-file overview comment plus local inline comments rather than turning the code into noise.
 
 ## Markdown rules
 
@@ -157,7 +127,7 @@ When maintaining markdown notes:
 - `README.md`: short practical explanation of the chosen approach
 - `*_Description.md`: problem statement notes
 - `*_Editorial.md`: structured algorithm explanation and complexity notes
-- `*_Sonnet-4.6.md`: working notes, comparisons, and AI-assisted reasoning for that problem
+- `*_GPT-*.md`: working notes, comparisons, and AI-assisted reasoning for that problem
 
 Naming rule for algorithm-explanation notes:
 
@@ -203,7 +173,7 @@ When the user asks things like "is this the same as your solution?" or "which is
    - implementation difficulty in C
    - readability / teachability for this repo
    - whether the answer depends on the problem constraints
-4. If a `*_Sonnet-4.6.md` file exists and the user wants the result saved, record the comparison there.
+4. If a `*_GPT-*.md` file exists and the user wants the result saved, record the comparison there.
 
 ## Recommended commands
 
@@ -224,5 +194,5 @@ For a newer local-test folder with a `Makefile`, use `make` to verify changes.
 - Do not normalize the repo's naming inconsistencies.
 - Do not add a global build system.
 - Do not create broad repo-wide refactors for a single problem.
-- Do not overwrite user-authored `*_Sonnet-4.6.md` notes unless the user asked for that file to be updated.
+- Do not overwrite user-authored `*_GPT-*.md` notes unless the user asked for that file to be updated.
 - Do not generate empty companion markdown files just because the template allows them.
