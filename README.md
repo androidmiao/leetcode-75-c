@@ -162,5 +162,16 @@ Approach 2 是 Quickselect (Hoare's selection algorithm)。
 這次沒有改 C 程式，也沒有跑 `make`，因為變更只涉及 markdown 與 skill。補充一點：我刻意沒有把 LeetCode 官方長文逐字整段搬進 repo，而是保留原本結構後整理成英文摘要加中文對照，這樣比較適合目前 repo 的寫法。另有你原本未處理的工作樹變更： [README.md](/Users/alex.miao/Documents/GitHub/leetcode-75-c/README.md) 和 [283-move-zeroes_GPT-5.3.md](/Users/alex.miao/Documents/GitHub/leetcode-75-c/283-move-zeroes/283-move-zeroes_GPT-5.3.md)；我沒有動它們。
 
 
+@@@Codex:
 
 @https://leetcode.com/problems/top-k-frequent-words/description/?envType=problem-list-v2&envId=wl94y6ih https://leetcode.com/problems/top-k-frequent-words/editorial/?envType=problem-list-v2&envId=wl94y6ih 用 leetcode-75-c-workflow 幫我初始化 692_Top K Frequent Words
+
+
+
+
+
+@@@Claude:
+https://leetcode.com/problem-list/wl94y6ih/ @problem-list_linux_todo.md 請照這個問題list的順序, 每個問題依據 SKILL.md 來做初始化, 直到所有問題都完成
+
+
+
