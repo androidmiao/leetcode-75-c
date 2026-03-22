@@ -174,3 +174,20 @@ Med.
 232. Implement Queue using Stacks
 69.5%
 Easy
+
+
+
+
+@@@
+@leecode-75-c 請分析整理並分類所有題目, 哪些是linux kernel中實際會遇到的？以Google面試角度,我會優先準備這些, 並請整理出十天複習完的衝刺計劃
+
+
+Now let me build the comprehensive analysis and sprint plan.完成了！我把你 repo 裡全部 71 道題目做了完整的分析、分類、Kernel 關聯標記，以及十天衝刺計畫。
+
+核心結論：
+
+**Kernel 最直接相關的前 9 題**（Tier 1 必練）：146 LRU Cache、206 Reverse Linked List、21 Merge Two Sorted Lists、141 Linked List Cycle、207/210 Course Schedule I & II、23 Merge k Sorted Lists、232 Queue using Stacks、700 Search in a BST。這些題目每一道都能直接對應到 kernel 中的 `list_head`、`hlist_head`、`rb_tree`、`kfifo`、module dependency 等核心機制。
+
+**十天計畫的設計邏輯**：前兩天全力打 Linked List（kernel 的根基），Day 3-4 攻 Hash Table + 拓撲排序（kernel 查找 & module 相依性），Day 5-6 是 Sliding Window + Heap（Google 高頻），Day 7-8 是 Graph + Monotonic Stack + DP，Day 9 掃尾，Day 10 模擬面試。
+
+[查看完整計畫](computer:///Users/alex.miao/Documents/GitHub/leetcode-75-c/10-day-sprint-plan.md)
