@@ -68,7 +68,22 @@ Editorial 另外也介紹了**方法一：Kahn 演算法（BFS 拓撲排序）**
 
 對於本題單獨而言（只需 true/false），兩者一樣好。但 Kahn 演算法給你更多討論延伸的空間，因此是更強的面試選擇。
 
-https://leetcode.com/problems/course-schedule/description/?envType=problem-list-v2&envId=wl94y6ih https://leetcode.com/problems/course-schedule/editorial/?envType=problem-list-v2&envId=wl94y6ih
+
+
+https://leetcode.com/problems/course-schedule/description/?envType=problem-list-v2&envId=wl94y6ih https://leetcode.com/problems/course-schedule/editorial/?envType=problem-list-v2&envId=wl94y6ih 
+
+```markdown
+依據 SKILL.md 來初始化 207_Course Schedule
+```
+
+@207_Course Schedule_Description.md 請加上繁體中文翻譯, 這個動作請加入SKILL.md
+
+
+@/Users/alex.miao/Documents/GitHub/leetcode-75-c/207_Course Schedule Linux相關為module dependency DAG、死鎖偵測的環偵測
+
+```markdown
+請列出Linux相關的code在哪裡？若以主管Code Review的角度, 可能會怎麼考?
+```
 
 ---
 
