@@ -105,4 +105,4 @@ Let me first read the C file and the project's SKILL.md to understand the implem
 @LRU 是 kernel 的核心機制——page cache 的回收策略、slab allocator 的 reclaim、dentry cache 的淘汰全部基於 LRU 或其變體（如 LRU-2Q）, 請列出Linux相關的code在哪裡？若以主管Code Review的角度, 可能會怎麼考?
 
 
-
+@請把這個回覆記錄到146_LRU Cache_Linux.md
