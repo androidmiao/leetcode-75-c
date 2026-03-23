@@ -71,7 +71,7 @@ If the user wants LeetCode page syncing during new-problem setup, also create:
 
 If the user provides a LeetCode problem link during initialization, treat page syncing as part of initialization by default. In that case, initialization is not complete until:
 
-- `*_Description.md` has been synced from the Description page
+- `*_Description.md` has been synced from the Description page, with the full English section first followed by a full Chinese translation / paraphrase (same bilingual formatting as `*_Editorial.md`)
 - `*_Editorial.md` has been synced from the Editorial page when the editorial is accessible
 - `*_Editorial.md` contains the full Solution section structure as repo-maintainable English notes plus corresponding Chinese translation / paraphrase
 - `*_Sonnet-4.6.md` has been created with an implementation vs. editorial comparison (see below)
@@ -183,7 +183,7 @@ When the user asks you to open a LeetCode problem, Description page, or Editoria
 1. Prefer the existing authenticated browser session through Chrome DevTools MCP.
 2. Verify whether the session is already logged in before asking the user to sign in.
 3. If the target page redirects away from the requested tab, reopen it after login and confirm the final URL.
-4. For `*_Description.md`, capture the problem statement, examples, constraints, and follow-up.
+4. For `*_Description.md`, capture the problem statement, examples, constraints, and follow-up. Then append a full Chinese translation / paraphrase after the English section (same bilingual formatting default as `*_Editorial.md`).
 5. For `*_Editorial.md`, capture the official Solution section structure, approach names, core ideas, algorithm steps, and complexity notes.
 6. Keep the technical structure close to the live LeetCode page.
 7. Write a high-fidelity rewrite instead of pasting long official text verbatim.
