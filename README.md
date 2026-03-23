@@ -174,4 +174,7 @@ Approach 2 是 Quickselect (Hoare's selection algorithm)。
 https://leetcode.com/problem-list/wl94y6ih/ @problem-list_linux_todo.md 請照這個問題list的順序, 每個問題依據 SKILL.md 來做初始化, 直到所有問題都完成
 
 
+https://leetcode.com/problems/lru-cache/description/?envType=problem-list-v2&envId=wl94y6ih https://leetcode.com/problems/lru-cache/editorial/?envType=problem-list-v2&envId=wl94y6ih 依據 SKILL.md 來初始化 146_LRU Cache
+
+
 

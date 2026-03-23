@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>146. LRU Cache — 記憶體位址 / 陣列索引 詳細說明圖</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --dim: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --red: #f85149;
+    --orange: #d29922;
+    --purple: #bc8cff;
+    --pink: #f778ba;
+    --cyan: #39d2c0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 30px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  h1 { color: var(--accent); font-size: 22px; margin-bottom: 8px; }
+  h2 { color: var(--orange); font-size: 17px; margin: 32px 0 12px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  h3 { color: var(--green); font-size: 15px; margin: 20px 0 8px; }
+  .subtitle { color: var(--dim); font-size: 13px; margin-bottom: 24px; }
+  .op { color: var(--cyan); font-weight: bold; }
+  .ret { color: var(--orange); }
+  .evict { color: var(--red); }
+  .addr { color: var(--purple); }
+  .key-val { color: var(--green); }
+  .null { color: var(--dim); }
+  .highlight { color: var(--pink); }
+
+  .step {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .step-num {
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: bold;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .step-title { font-size: 15px; font-weight: bold; }
+  .diagram {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 10px 0;
+    overflow-x: auto;
+    white-space: pre;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .explain {
+    color: var(--dim);
+    font-size: 13px;
+    margin: 8px 0 4px;
+    font-style: italic;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 12px 0;
+    font-size: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .note {
+    background: #1c2333;
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    margin: 12px 0;
+    font-size: 13px;
+    border-radius: 0 6px 6px 0;
+  }
+  table {
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    text-align: left;
+  }
+  th { background: #1c2333; color: var(--accent); }
+</style>
+</head>
+<body>
+
+<h1>146. LRU Cache — 記憶體位址 / 陣列索引 詳細說明圖</h1>
+<p class="subtitle">使用 Example 1：capacity = 2，追蹤每一步的 Hash Table 陣列 + 雙向鏈結串列的完整記憶體狀態</p>
+
+<div class="note">
+<strong>假設的記憶體位址</strong>（方便追蹤指標）<br>
+LRUCache 結構體: <span class="addr">0xA000</span> &nbsp;|&nbsp;
+Head 哨兵: <span class="addr">0xB000</span> &nbsp;|&nbsp;
+Tail 哨兵: <span class="addr">0xB020</span><br>
+資料節點依序分配: <span class="addr">0xC000</span>, <span class="addr">0xC020</span>, <span class="addr">0xC040</span>, <span class="addr">0xC060</span><br>
+HashNode 依序分配: <span class="addr">0xD000</span>, <span class="addr">0xD020</span>, <span class="addr">0xD040</span>, <span class="addr">0xD060</span><br><br>
+<strong>Hash 函式</strong>: hash(key) = key % 10007 → 在此例中 hash(1)=1, hash(2)=2, hash(3)=3, hash(4)=4
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div> 記憶體位址</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> key-value 資料</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div> 操作指令</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> 淘汰 / 刪除</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--pink)"></div> 本步驟變動處</div>
+</div>
+
+<!-- ═══════════════════════════ STEP 0 ═══════════════════════════ -->
+<h2>Example 1 操作序列</h2>
+<div class="diagram">操作:  LRUCache(2), put(1,1), put(2,2), get(1), put(3,3), get(2), put(4,4), get(1), get(3), get(4)
+回傳:  null,        null,     null,     1,      null,     -1,     null,     -1,     3,      4</div>
+
+<!-- ═══════════════════════════ STEP 0 ═══════════════════════════ -->
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">0</div>
+    <div class="step-title"><span class="op">LRUCache(2)</span> — 初始化，capacity = 2</div>
+  </div>
+
+  <p class="explain">malloc LRUCache、Head 哨兵、Tail 哨兵；hash table 全部清零</p>
+
+<div class="diagram">
+<strong>LRUCache 結構體</strong> <span class="addr">@ 0xA000</span>
+┌─────────────────────────────────────────────────────┐
+│ capacity = 2                                        │
+│ size     = 0                                        │
+│ head     = <span class="addr">0xB000</span>  (Head 哨兵)                      │
+│ tail     = <span class="addr">0xB020</span>  (Tail 哨兵)                      │
+│ table[0..10006] = { NULL, NULL, NULL, ... }         │
+└─────────────────────────────────────────────────────┘
+
+<strong>雙向鏈結串列（Doubly Linked List）</strong>
+
+  <span class="addr">0xB000</span>                       <span class="addr">0xB020</span>
+  ┌──────────────┐              ┌──────────────┐
+  │ <strong>HEAD 哨兵</strong>    │              │ <strong>TAIL 哨兵</strong>    │
+  │ key = (N/A)  │    next      │ key = (N/A)  │
+  │ val = (N/A)  │─────────────→│ val = (N/A)  │
+  │ prev = NULL  │              │ prev = <span class="addr">0xB000</span>│
+  │ next = <span class="addr">0xB020</span>│←─────────────│ next = NULL  │
+  └──────────────┘    prev      └──────────────┘
+
+<strong>Hash Table（僅顯示 index 0~5）</strong>
+  ┌───────┬──────────┐
+  │ index │ bucket   │
+  ├───────┼──────────┤
+  │   0   │ <span class="null">NULL</span>     │
+  │   1   │ <span class="null">NULL</span>     │
+  │   2   │ <span class="null">NULL</span>     │
+  │   3   │ <span class="null">NULL</span>     │
+  │   4   │ <span class="null">NULL</span>     │
+  │  ...  │ <span class="null">NULL</span>     │
+  └───────┴──────────┘
+</div>
+</div>
+
+<!-- ═══════════════════════════ STEP 1 ═══════════════════════════ -->
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">1</div>
+    <div class="step-title"><span class="op">put(1, 1)</span> — 插入 key=1, value=1</div>
+  </div>
+
+  <p class="explain">hashFind(1) = NULL → 新建 Node <span class="addr">0xC000</span> + HashNode <span class="addr">0xD000</span>，insertBeforeTail，size 1→1</p>
+
+<div class="diagram">
+<strong>新分配的記憶體：</strong>
+  Node     <span class="addr">@ 0xC000</span>  { key=<span class="key-val">1</span>, val=<span class="key-val">1</span>, prev=?, next=? }
+  HashNode <span class="addr">@ 0xD000</span>  { key=<span class="key-val">1</span>, node=<span class="addr">0xC000</span>, next=NULL }
+
+<strong>雙向鏈結串列</strong>   size = <span class="highlight">1</span>
+
+  <span class="addr">0xB000</span>              <span class="highlight"><span class="addr">0xC000</span></span>              <span class="addr">0xB020</span>
+  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+  │ <strong>HEAD 哨兵</strong>    │   │ <span class="key-val">key=1 val=1</span>  │   │ <strong>TAIL 哨兵</strong>    │
+  │ prev = NULL  │──→│ prev = <span class="addr">0xB000</span>│──→│ prev = <span class="highlight"><span class="addr">0xC000</span></span>│
+  │ next = <span class="highlight"><span class="addr">0xC000</span></span>│←──│ next = <span class="addr">0xB020</span>│←──│ next = NULL  │
+  └──────────────┘   └──────────────┘   └──────────────┘
+        HEAD ──next──→ [1,1] ──next──→ TAIL
+        HEAD ←──prev── [1,1] ←──prev── TAIL
+
+<strong>Hash Table</strong>
+  ┌───────┬───────────────────────────────────────────────────────┐
+  │ index │ bucket → HashNode chain                              │
+  ├───────┼───────────────────────────────────────────────────────┤
+  │   0   │ <span class="null">NULL</span>                                                    │
+  │ <span class="highlight">  1  </span> │ <span class="highlight"><span class="addr">0xD000</span></span> ─→ <span class="highlight">{ key=1, node=<span class="addr">0xC000</span>, next=NULL }</span>         │
+  │   2   │ <span class="null">NULL</span>                                                    │
+  │   3   │ <span class="null">NULL</span>                                                    │
+  │   4   │ <span class="null">NULL</span>                                                    │
+  └───────┴───────────────────────────────────────────────────────┘
+</div>
+</div>
+
+<!-- ═══════════════════════════ STEP 2 ═══════════════════════════ -->
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">2</div>
+    <div class="step-title"><span class="op">put(2, 2)</span> — 插入 key=2, value=2</div>
+  </div>
+
+  <p class="explain">hashFind(2) = NULL → 新建 Node <span class="addr">0xC020</span> + HashNode <span class="addr">0xD020</span>，insertBeforeTail，size 1→2（已滿）</p>
+
+<div class="diagram">
+<strong>新分配的記憶體：</strong>
+  Node     <span class="addr">@ 0xC020</span>  { key=<span class="key-val">2</span>, val=<span class="key-val">2</span>, prev=?, next=? }
+  HashNode <span class="addr">@ 0xD020</span>  { key=<span class="key-val">2</span>, node=<span class="addr">0xC020</span>, next=NULL }
+
+<strong>雙向鏈結串列</strong>   size = <span class="highlight">2</span>（已達 capacity）
+
+  <span class="addr">0xB000</span>              <span class="addr">0xC000</span>              <span class="highlight"><span class="addr">0xC020</span></span>              <span class="addr">0xB020</span>
+  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+  │ <strong>HEAD 哨兵</strong>    │   │ <span class="key-val">key=1 val=1</span>  │   │ <span class="key-val">key=2 val=2</span>  │   │ <strong>TAIL 哨兵</strong>    │
+  │ prev = NULL  │──→│ prev = <span class="addr">0xB000</span>│──→│ prev = <span class="addr">0xC000</span>│──→│ prev = <span class="highlight"><span class="addr">0xC020</span></span>│
+  │ next = <span class="addr">0xC000</span>│←──│ next = <span class="highlight"><span class="addr">0xC020</span></span>│←──│ next = <span class="addr">0xB020</span>│←──│ next = NULL  │
+  └──────────────┘   └──────────────┘   └──────────────┘   └──────────────┘
+       HEAD ──→ [1,1] ──→ [2,2] ──→ TAIL
+       最舊 ←─────────────────────→ 最新
+
+<strong>Hash Table</strong>
+  ┌───────┬───────────────────────────────────────────────────────┐
+  │ index │ bucket → HashNode chain                              │
+  ├───────┼───────────────────────────────────────────────────────┤
+  │   0   │ <span class="null">NULL</span>                                                    │
+  │   1   │ <span class="addr">0xD000</span> ─→ { key=1, node=<span class="addr">0xC000</span>, next=NULL }         │
+  │ <span class="highlight">  2  </span> │ <span class="highlight"><span class="addr">0xD020</span></span> ─→ <span class="highlight">{ key=2, node=<span class="addr">0xC020</span>, next=NULL }</span>         │
+  │   3   │ <span class="null">NULL</span>                                                    │
+  │   4   │ <span class="null">NULL</span>                                                    │
+  └───────┴───────────────────────────────────────────────────────┘
+</div>
+</div>
+
+<!-- ═══════════════════════════ STEP 3 ═══════════════════════════ -->
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">3</div>
+    <div class="step-title"><span class="op">get(1)</span> → 回傳 <span class="ret">1</span>，將 [1,1] 移至最近端</div>
+  </div>
+
+  <p class="explain">hashFind(1) = <span class="addr">0xC000</span> → removeNode(<span class="addr">0xC000</span>) → insertBeforeTail(<span class="addr">0xC000</span>) → return 1</p>
+
+<div class="diagram">
+<strong>Step 3a: removeNode(<span class="addr">0xC000</span>)</strong> — 從鏈結串列中摘除 [1,1]
+  修改指標：
+    <span class="addr">0xB000</span>(HEAD).next  = <span class="addr">0xC020</span>    （原本 = <span class="addr">0xC000</span>）
+    <span class="addr">0xC020</span>([2,2]).prev  = <span class="addr">0xB000</span>    （原本 = <span class="addr">0xC000</span>）
+
+  HEAD ──→ [2,2] ──→ TAIL       [1,1] 暫時孤立
+
+<strong>Step 3b: insertBeforeTail(<span class="addr">0xC000</span>)</strong> — 將 [1,1] 插入 TAIL 之前
+  修改指標：
+    <span class="addr">0xC000</span>([1,1]).prev  = <span class="addr">0xC020</span>    （[2,2] 的位址）
+    <span class="addr">0xC000</span>([1,1]).next  = <span class="addr">0xB020</span>    （TAIL 的位址）
+    <span class="addr">0xC020</span>([2,2]).next  = <span class="addr">0xC000</span>    （原本 = <span class="addr">0xB020</span>）
+    <span class="addr">0xB020</span>(TAIL).prev   = <span class="addr">0xC000</span>    （原本 = <span class="addr">0xC020</span>）
+
+<strong>雙向鏈結串列</strong>   size = 2（不變）
+
+  <span class="addr">0xB000</span>              <span class="addr">0xC020</span>              <span class="highlight"><span class="addr">0xC000</span></span>              <span class="addr">0xB020</span>
+  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+  │ <strong>HEAD 哨兵</strong>    │   │ <span class="key-val">key=2 val=2</span>  │   │ <span class="key-val">key=1 val=1</span>  │   │ <strong>TAIL 哨兵</strong>    │
+  │ prev = NULL  │──→│ prev = <span class="addr">0xB000</span>│──→│ prev = <span class="addr">0xC020</span>│──→│ prev = <span class="highlight"><span class="addr">0xC000</span></span>│
+  │ next = <span class="addr">0xC020</span>│←──│ next = <span class="highlight"><span class="addr">0xC000</span></span>│←──│ next = <span class="addr">0xB020</span>│←──│ next = NULL  │
+  └──────────────┘   └──────────────┘   └──────────────┘   └──────────────┘
+       HEAD ──→ [2,2] ──→ <span class="highlight">[1,1]</span> ──→ TAIL
+       最舊               最新(剛存取)
+
+<strong>Hash Table</strong>（不變，只是鏈結串列順序改了，HashNode 指向的 Node* 沒變）
+  ┌───────┬───────────────────────────────────────────────────────┐
+  │   1   │ <span class="addr">0xD000</span> ─→ { key=1, node=<span class="addr">0xC000</span>, next=NULL }         │
+  │   2   │ <span class="addr">0xD020</span> ─→ { key=2, node=<span class="addr">0xC020</span>, next=NULL }         │
+  └───────┴───────────────────────────────────────────────────────┘
+</div>
+</div>
+
+<!-- ═══════════════════════════ STEP 4 ═══════════════════════════ -->
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">4</div>
+    <div class="step-title"><span class="op">put(3, 3)</span> — 插入 key=3，<span class="evict">淘汰 LRU key=2</span></div>
+  </div>
+
+  <p class="explain">hashFind(3) = NULL → 新建 Node <span class="addr">0xC040</span> + HashNode <span class="addr">0xD040</span> → size 2→3 &gt; capacity → 淘汰 head->next = <span class="addr">0xC020</span> (key=2)</p>
+
+<div class="diagram">
+<strong>Step 4a: 新建節點並插入</strong>
+  Node     <span class="addr">@ 0xC040</span>  { key=<span class="key-val">3</span>, val=<span class="key-val">3</span> }
+  HashNode <span class="addr">@ 0xD040</span>  { key=<span class="key-val">3</span>, node=<span class="addr">0xC040</span>, next=NULL }
+  → insertBeforeTail(<span class="addr">0xC040</span>)
+  → size = 3（超過 capacity=2！）
+
+<strong>Step 4b: 淘汰最舊節點</strong>
+  lru = head->next = <span class="addr">0xC020</span> (key=<span class="evict">2</span>)
+  <span class="evict">removeNode(<span class="addr">0xC020</span>)</span>     ← 從鏈結串列移除
+  <span class="evict">hashRemove(obj, 2)</span>    ← 從 hash table[2] 移除 HashNode <span class="addr">0xD020</span>
+  <span class="evict">free(<span class="addr">0xC020</span>)</span>          ← 釋放 Node 記憶體
+  size = 3 → <span class="highlight">2</span>
+
+<strong>雙向鏈結串列</strong>   size = 2
+
+  <span class="addr">0xB000</span>              <span class="addr">0xC000</span>              <span class="highlight"><span class="addr">0xC040</span></span>              <span class="addr">0xB020</span>
+  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+  │ <strong>HEAD 哨兵</strong>    │   │ <span class="key-val">key=1 val=1</span>  │   │ <span class="key-val">key=3 val=3</span>  │   │ <strong>TAIL 哨兵</strong>    │
+  │ prev = NULL  │──→│ prev = <span class="addr">0xB000</span>│──→│ prev = <span class="addr">0xC000</span>│──→│ prev = <span class="highlight"><span class="addr">0xC040</span></span>│
+  │ next = <span class="addr">0xC000</span>│←──│ next = <span class="highlight"><span class="addr">0xC040</span></span>│←──│ next = <span class="addr">0xB020</span>│←──│ next = NULL  │
+  └──────────────┘   └──────────────┘   └──────────────┘   └──────────────┘
+       HEAD ──→ [1,1] ──→ <span class="highlight">[3,3]</span> ──→ TAIL
+       最舊               最新
+
+  <span class="evict">已釋放: Node <span class="addr">0xC020</span> (key=2) ✗</span>
+  <span class="evict">已釋放: HashNode <span class="addr">0xD020</span> (key=2) ✗</span>
+
+<strong>Hash Table</strong>
+  ┌───────┬───────────────────────────────────────────────────────┐
+  │   1   │ <span class="addr">0xD000</span> ─→ { key=1, node=<span class="addr">0xC000</span>, next=NULL }         │
+  │   2   │ <span class="evict">NULL</span>  ← <span class="evict">已移除</span>                                     │
+  │ <span class="highlight">  3  </span> │ <span class="highlight"><span class="addr">0xD040</span></span> ─→ <span class="highlight">{ key=3, node=<span class="addr">0xC040</span>, next=NULL }</span>         │
+  └───────┴───────────────────────────────────────────────────────┘
+</div>
+</div>
+
+<!-- ═══════════════════════════ STEP 5 ═══════════════════════════ -->
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">5</div>
+    <div class="step-title"><span class="op">get(2)</span> → 回傳 <span class="ret">-1</span>（已被淘汰）</div>
+  </div>
+
+  <p class="explain">hashFind(2) → table[2] = NULL → return -1。鏈結串列和 hash table 完全不變。</p>
+
+<div class="diagram">
+<strong>查找過程：</strong>
+  h = hash(2) = 2
+  table[2] = <span class="null">NULL</span>  ← key=2 在 Step 4 已被淘汰
+  → return <span class="ret">-1</span>
+
+<strong>雙向鏈結串列</strong>（不變）
+  HEAD ──→ [1,1] ──→ [3,3] ──→ TAIL
+</div>
+</div>
+
+<!-- ═══════════════════════════ STEP 6 ═══════════════════════════ -->
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">6</div>
+    <div class="step-title"><span class="op">put(4, 4)</span> — 插入 key=4，<span class="evict">淘汰 LRU key=1</span></div>
+  </div>
+
+  <p class="explain">hashFind(4) = NULL → 新建 Node <span class="addr">0xC060</span> + HashNode <span class="addr">0xD060</span> → size 2→3 &gt; capacity → 淘汰 head->next = <span class="addr">0xC000</span> (key=1)</p>
+
+<div class="diagram">
+<strong>Step 6a: 新建節點並插入</strong>
+  Node     <span class="addr">@ 0xC060</span>  { key=<span class="key-val">4</span>, val=<span class="key-val">4</span> }
+  HashNode <span class="addr">@ 0xD060</span>  { key=<span class="key-val">4</span>, node=<span class="addr">0xC060</span>, next=NULL }
+  → insertBeforeTail(<span class="addr">0xC060</span>)
+  → size = 3（超過 capacity=2！）
+
+<strong>Step 6b: 淘汰最舊節點</strong>
+  lru = head->next = <span class="addr">0xC000</span> (key=<span class="evict">1</span>)
+  <span class="evict">removeNode(<span class="addr">0xC000</span>)</span>     ← 從鏈結串列移除
+  <span class="evict">hashRemove(obj, 1)</span>    ← 從 hash table[1] 移除 HashNode <span class="addr">0xD000</span>
+  <span class="evict">free(<span class="addr">0xC000</span>)</span>          ← 釋放 Node 記憶體
+  size = 3 → <span class="highlight">2</span>
+
+<strong>雙向鏈結串列</strong>   size = 2
+
+  <span class="addr">0xB000</span>              <span class="addr">0xC040</span>              <span class="highlight"><span class="addr">0xC060</span></span>              <span class="addr">0xB020</span>
+  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+  │ <strong>HEAD 哨兵</strong>    │   │ <span class="key-val">key=3 val=3</span>  │   │ <span class="key-val">key=4 val=4</span>  │   │ <strong>TAIL 哨兵</strong>    │
+  │ prev = NULL  │──→│ prev = <span class="addr">0xB000</span>│──→│ prev = <span class="addr">0xC040</span>│──→│ prev = <span class="highlight"><span class="addr">0xC060</span></span>│
+  │ next = <span class="addr">0xC040</span>│←──│ next = <span class="highlight"><span class="addr">0xC060</span></span>│←──│ next = <span class="addr">0xB020</span>│←──│ next = NULL  │
+  └──────────────┘   └──────────────┘   └──────────────┘   └──────────────┘
+       HEAD ──→ [3,3] ──→ <span class="highlight">[4,4]</span> ──→ TAIL
+       最舊               最新
+
+  <span class="evict">已釋放: Node <span class="addr">0xC000</span> (key=1) ✗</span>
+  <span class="evict">已釋放: HashNode <span class="addr">0xD000</span> (key=1) ✗</span>
+
+<strong>Hash Table</strong>
+  ┌───────┬───────────────────────────────────────────────────────┐
+  │   1   │ <span class="evict">NULL</span>  ← <span class="evict">已移除</span>                                     │
+  │   2   │ <span class="evict">NULL</span>  ← <span class="evict">早已移除</span>                                   │
+  │   3   │ <span class="addr">0xD040</span> ─→ { key=3, node=<span class="addr">0xC040</span>, next=NULL }         │
+  │ <span class="highlight">  4  </span> │ <span class="highlight"><span class="addr">0xD060</span></span> ─→ <span class="highlight">{ key=4, node=<span class="addr">0xC060</span>, next=NULL }</span>         │
+  └───────┴───────────────────────────────────────────────────────┘
+</div>
+</div>
+
+<!-- ═══════════════════════════ STEP 7 ═══════════════════════════ -->
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">7</div>
+    <div class="step-title"><span class="op">get(1)</span> → 回傳 <span class="ret">-1</span>（已被淘汰）</div>
+  </div>
+
+  <p class="explain">hashFind(1) → table[1] = NULL → return -1</p>
+
+<div class="diagram">
+<strong>查找過程：</strong>
+  h = hash(1) = 1
+  table[1] = <span class="null">NULL</span>  ← key=1 在 Step 6 已被淘汰
+  → return <span class="ret">-1</span>
+
+<strong>雙向鏈結串列</strong>（不變）
+  HEAD ──→ [3,3] ──→ [4,4] ──→ TAIL
+</div>
+</div>
+
+<!-- ═══════════════════════════ STEP 8 ═══════════════════════════ -->
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">8</div>
+    <div class="step-title"><span class="op">get(3)</span> → 回傳 <span class="ret">3</span>，將 [3,3] 移至最近端</div>
+  </div>
+
+  <p class="explain">hashFind(3) = <span class="addr">0xC040</span> → removeNode → insertBeforeTail → return 3</p>
+
+<div class="diagram">
+<strong>Step 8a: removeNode(<span class="addr">0xC040</span>)</strong>
+  <span class="addr">0xB000</span>(HEAD).next   = <span class="addr">0xC060</span>    （原本 = <span class="addr">0xC040</span>）
+  <span class="addr">0xC060</span>([4,4]).prev   = <span class="addr">0xB000</span>    （原本 = <span class="addr">0xC040</span>）
+
+<strong>Step 8b: insertBeforeTail(<span class="addr">0xC040</span>)</strong>
+  <span class="addr">0xC040</span>([3,3]).prev   = <span class="addr">0xC060</span>
+  <span class="addr">0xC040</span>([3,3]).next   = <span class="addr">0xB020</span>
+  <span class="addr">0xC060</span>([4,4]).next   = <span class="addr">0xC040</span>    （原本 = <span class="addr">0xB020</span>）
+  <span class="addr">0xB020</span>(TAIL).prev    = <span class="addr">0xC040</span>    （原本 = <span class="addr">0xC060</span>）
+
+<strong>雙向鏈結串列</strong>   size = 2
+
+  <span class="addr">0xB000</span>              <span class="addr">0xC060</span>              <span class="highlight"><span class="addr">0xC040</span></span>              <span class="addr">0xB020</span>
+  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+  │ <strong>HEAD 哨兵</strong>    │   │ <span class="key-val">key=4 val=4</span>  │   │ <span class="key-val">key=3 val=3</span>  │   │ <strong>TAIL 哨兵</strong>    │
+  │ prev = NULL  │──→│ prev = <span class="addr">0xB000</span>│──→│ prev = <span class="addr">0xC060</span>│──→│ prev = <span class="highlight"><span class="addr">0xC040</span></span>│
+  │ next = <span class="addr">0xC060</span>│←──│ next = <span class="highlight"><span class="addr">0xC040</span></span>│←──│ next = <span class="addr">0xB020</span>│←──│ next = NULL  │
+  └──────────────┘   └──────────────┘   └──────────────┘   └──────────────┘
+       HEAD ──→ [4,4] ──→ <span class="highlight">[3,3]</span> ──→ TAIL
+       最舊               最新(剛存取)
+
+<strong>Hash Table</strong>（不變）
+  ┌───────┬───────────────────────────────────────────────────────┐
+  │   3   │ <span class="addr">0xD040</span> ─→ { key=3, node=<span class="addr">0xC040</span>, next=NULL }         │
+  │   4   │ <span class="addr">0xD060</span> ─→ { key=4, node=<span class="addr">0xC060</span>, next=NULL }         │
+  └───────┴───────────────────────────────────────────────────────┘
+</div>
+</div>
+
+<!-- ═══════════════════════════ STEP 9 ═══════════════════════════ -->
+<div class="step">
+  <div class="step-header">
+    <div class="step-num">9</div>
+    <div class="step-title"><span class="op">get(4)</span> → 回傳 <span class="ret">4</span>，將 [4,4] 移至最近端</div>
+  </div>
+
+  <p class="explain">hashFind(4) = <span class="addr">0xC060</span> → removeNode → insertBeforeTail → return 4</p>
+
+<div class="diagram">
+<strong>Step 9a: removeNode(<span class="addr">0xC060</span>)</strong>
+  <span class="addr">0xB000</span>(HEAD).next   = <span class="addr">0xC040</span>    （原本 = <span class="addr">0xC060</span>）
+  <span class="addr">0xC040</span>([3,3]).prev   = <span class="addr">0xB000</span>    （原本 = <span class="addr">0xC060</span>）
+
+<strong>Step 9b: insertBeforeTail(<span class="addr">0xC060</span>)</strong>
+  <span class="addr">0xC060</span>([4,4]).prev   = <span class="addr">0xC040</span>
+  <span class="addr">0xC060</span>([4,4]).next   = <span class="addr">0xB020</span>
+  <span class="addr">0xC040</span>([3,3]).next   = <span class="addr">0xC060</span>    （原本 = <span class="addr">0xB020</span>）
+  <span class="addr">0xB020</span>(TAIL).prev    = <span class="addr">0xC060</span>    （原本 = <span class="addr">0xC040</span>）
+
+<strong>最終雙向鏈結串列</strong>   size = 2
+
+  <span class="addr">0xB000</span>              <span class="addr">0xC040</span>              <span class="highlight"><span class="addr">0xC060</span></span>              <span class="addr">0xB020</span>
+  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+  │ <strong>HEAD 哨兵</strong>    │   │ <span class="key-val">key=3 val=3</span>  │   │ <span class="key-val">key=4 val=4</span>  │   │ <strong>TAIL 哨兵</strong>    │
+  │ prev = NULL  │──→│ prev = <span class="addr">0xB000</span>│──→│ prev = <span class="addr">0xC040</span>│──→│ prev = <span class="highlight"><span class="addr">0xC060</span></span>│
+  │ next = <span class="addr">0xC040</span>│←──│ next = <span class="highlight"><span class="addr">0xC060</span></span>│←──│ next = <span class="addr">0xB020</span>│←──│ next = NULL  │
+  └──────────────┘   └──────────────┘   └──────────────┘   └──────────────┘
+       HEAD ──→ [3,3] ──→ <span class="highlight">[4,4]</span> ──→ TAIL
+       最舊               最新(剛存取)
+
+<strong>最終 Hash Table</strong>
+  ┌───────┬───────────────────────────────────────────────────────┐
+  │ index │ bucket → HashNode chain                              │
+  ├───────┼───────────────────────────────────────────────────────┤
+  │   0   │ <span class="null">NULL</span>                                                    │
+  │   1   │ <span class="null">NULL</span>  （key=1 已淘汰）                                 │
+  │   2   │ <span class="null">NULL</span>  （key=2 已淘汰）                                 │
+  │   3   │ <span class="addr">0xD040</span> ─→ { key=3, node=<span class="addr">0xC040</span>, next=NULL }         │
+  │   4   │ <span class="addr">0xD060</span> ─→ { key=4, node=<span class="addr">0xC060</span>, next=NULL }         │
+  │  ...  │ <span class="null">NULL</span>                                                    │
+  └───────┴───────────────────────────────────────────────────────┘
+</div>
+</div>
+
+<!-- ═══════════════════════════ SUMMARY ═══════════════════════════ -->
+<h2>記憶體分配 / 釋放 追蹤總表</h2>
+
+<div class="step">
+<table>
+<tr>
+  <th>位址</th><th>類型</th><th>分配時機</th><th>釋放時機</th><th>最終狀態</th>
+</tr>
+<tr>
+  <td class="addr">0xA000</td><td>LRUCache</td><td>Step 0 init</td><td>lRUCacheFree</td><td style="color:var(--green)">存活</td>
+</tr>
+<tr>
+  <td class="addr">0xB000</td><td>Node (HEAD 哨兵)</td><td>Step 0 init</td><td>lRUCacheFree</td><td style="color:var(--green)">存活</td>
+</tr>
+<tr>
+  <td class="addr">0xB020</td><td>Node (TAIL 哨兵)</td><td>Step 0 init</td><td>lRUCacheFree</td><td style="color:var(--green)">存活</td>
+</tr>
+<tr>
+  <td class="addr">0xC000</td><td>Node (key=1)</td><td>Step 1 put(1,1)</td><td style="color:var(--red)">Step 6 put(4,4) 淘汰</td><td style="color:var(--red)">已釋放</td>
+</tr>
+<tr>
+  <td class="addr">0xC020</td><td>Node (key=2)</td><td>Step 2 put(2,2)</td><td style="color:var(--red)">Step 4 put(3,3) 淘汰</td><td style="color:var(--red)">已釋放</td>
+</tr>
+<tr>
+  <td class="addr">0xC040</td><td>Node (key=3)</td><td>Step 4 put(3,3)</td><td>lRUCacheFree</td><td style="color:var(--green)">存活</td>
+</tr>
+<tr>
+  <td class="addr">0xC060</td><td>Node (key=4)</td><td>Step 6 put(4,4)</td><td>lRUCacheFree</td><td style="color:var(--green)">存活</td>
+</tr>
+<tr>
+  <td class="addr">0xD000</td><td>HashNode (key=1)</td><td>Step 1 put(1,1)</td><td style="color:var(--red)">Step 6 put(4,4) 淘汰</td><td style="color:var(--red)">已釋放</td>
+</tr>
+<tr>
+  <td class="addr">0xD020</td><td>HashNode (key=2)</td><td>Step 2 put(2,2)</td><td style="color:var(--red)">Step 4 put(3,3) 淘汰</td><td style="color:var(--red)">已釋放</td>
+</tr>
+<tr>
+  <td class="addr">0xD040</td><td>HashNode (key=3)</td><td>Step 4 put(3,3)</td><td>lRUCacheFree</td><td style="color:var(--green)">存活</td>
+</tr>
+<tr>
+  <td class="addr">0xD060</td><td>HashNode (key=4)</td><td>Step 6 put(4,4)</td><td>lRUCacheFree</td><td style="color:var(--green)">存活</td>
+</tr>
+</table>
+</div>
+
+<h2>指標修改次數統計</h2>
+<div class="step">
+<table>
+<tr><th>操作</th><th>removeNode 指標修改</th><th>insertBeforeTail 指標修改</th><th>Hash 操作</th></tr>
+<tr><td>put(1,1)</td><td>—</td><td>4 個指標</td><td>hashInsert</td></tr>
+<tr><td>put(2,2)</td><td>—</td><td>4 個指標</td><td>hashInsert</td></tr>
+<tr><td>get(1)</td><td>2 個指標</td><td>4 個指標</td><td>hashFind</td></tr>
+<tr><td>put(3,3)</td><td>2（淘汰）</td><td>4 個指標</td><td>hashInsert + hashRemove</td></tr>
+<tr><td>get(2)</td><td>—</td><td>—</td><td>hashFind (miss)</td></tr>
+<tr><td>put(4,4)</td><td>2（淘汰）</td><td>4 個指標</td><td>hashInsert + hashRemove</td></tr>
+<tr><td>get(1)</td><td>—</td><td>—</td><td>hashFind (miss)</td></tr>
+<tr><td>get(3)</td><td>2 個指標</td><td>4 個指標</td><td>hashFind</td></tr>
+<tr><td>get(4)</td><td>2 個指標</td><td>4 個指標</td><td>hashFind</td></tr>
+</table>
+</div>
+
+</body>
+</html>
