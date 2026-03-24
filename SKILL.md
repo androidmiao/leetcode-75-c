@@ -71,11 +71,11 @@ If the user wants LeetCode page syncing during new-problem setup, also create:
 
 If the user provides a LeetCode problem link during initialization, treat page syncing as part of initialization by default. In that case, initialization is not complete until:
 
-- `*_Description.md` has been synced from the Description page, with the full English section first followed by a full Chinese translation / paraphrase (same bilingual formatting as `*_Editorial.md`)
+- `*_Description.md` has been synced from the Description page, with the full English section first followed by a full Traditional Chinese (繁體中文) translation / paraphrase (same bilingual formatting as `*_Editorial.md`)
 - `*_Editorial.md` has been synced from the Editorial page when the editorial is accessible
-- `*_Editorial.md` contains the full Solution section structure as repo-maintainable English notes plus corresponding Chinese translation / paraphrase
+- `*_Editorial.md` contains the full Solution section structure as repo-maintainable English notes plus corresponding Traditional Chinese (繁體中文) translation / paraphrase
 - `*_Sonnet-4.6.md` has been created with an implementation vs. editorial comparison (see below)
-- the `.c` solution file contains detailed Chinese inline comments and ASCII diagram(s) in the top-of-file block comment (see "Chinese annotation and diagram rules" below)
+- the `.c` solution file contains detailed Traditional Chinese (繁體中文) inline comments and ASCII diagram(s) in the top-of-file block comment (see "Traditional Chinese (繁體中文) annotation and diagram rules" below)
 - the final report clearly states whether the Editorial content came from the live authenticated LeetCode session or from a fallback source because access was blocked
 
 ### Creating `*_Sonnet-4.6.md` during initialization
@@ -86,7 +86,7 @@ After both the `.c` solution and `*_Editorial.md` are in place, always create `*
 2. **Which approach is better** — compare along: time complexity, space complexity, interview suitability, and C implementation difficulty. Use a markdown table when helpful.
 3. **Baseline vs. recommended** — name the baseline approach and the recommended approach, and explain why the recommended one is better for interview discussion.
 
-Write the full English section first, then the full Chinese translation / paraphrase after it.
+Write the full English section first, then the full Traditional Chinese (繁體中文) translation / paraphrase after it.
 
 ## Working method
 
@@ -121,7 +121,7 @@ When the user explicitly says the goal is "for Google LeetCode interview" or equ
    - the recommended Google interview approach
    - why that recommendation is better for interview discussion
 
-### Chinese annotation and diagram rules
+### Traditional Chinese (繁體中文) annotation and diagram rules
 
 Every `.c` solution produced or updated in this repo must include:
 
@@ -131,7 +131,7 @@ Every `.c` solution produced or updated in this repo must include:
    - ASCII diagram(s) showing the key pointer manipulation or data-structure state changes at each step
    - for linked-list problems: diagrams for the pointer-finding phase (e.g. fast/slow), the reversal phase, the comparison phase, and the restoration phase
    - for tree/graph problems: ASCII tree or adjacency sketches showing before/after state
-2. **Chinese inline comments** on every non-trivial line or logical block:
+2. **Traditional Chinese (繁體中文) inline comments** on every non-trivial line or logical block:
    - what the variable represents
    - why the condition is written the way it is
    - what invariant holds at that point
@@ -146,7 +146,7 @@ This annotation step is **part of initialization** when a LeetCode link is provi
 If the user asks you to use the problem description to implement the solution in the target `.c` file:
 
 1. Write the final LeetCode-submit version directly into the requested `.c` file.
-2. Apply the Chinese annotation and diagram rules above as part of the same step.
+2. Apply the Traditional Chinese (繁體中文) annotation and diagram rules above as part of the same step.
 3. Keep the code readable even when the comments are dense.
 4. Use a top-of-file overview comment plus local inline comments rather than turning the code into noise.
 
@@ -173,8 +173,8 @@ Update only the files relevant to the request.
 Unless the user explicitly asks for interleaved bilingual formatting:
 
 - put the full English section first
-- put the full Chinese translation / paraphrase after that
-- do not alternate English and Chinese paragraph by paragraph
+- put the full Traditional Chinese (繁體中文) translation / paraphrase after that
+- do not alternate English and Traditional Chinese (繁體中文) paragraph by paragraph
 
 ### Syncing LeetCode pages into markdown
 
@@ -183,14 +183,29 @@ When the user asks you to open a LeetCode problem, Description page, or Editoria
 1. Prefer the existing authenticated browser session through Chrome DevTools MCP.
 2. Verify whether the session is already logged in before asking the user to sign in.
 3. If the target page redirects away from the requested tab, reopen it after login and confirm the final URL.
-4. For `*_Description.md`, capture the problem statement, examples, constraints, and follow-up. Then append a full Chinese translation / paraphrase after the English section (same bilingual formatting default as `*_Editorial.md`).
+4. For `*_Description.md`, capture the problem statement, examples, constraints, and follow-up. Then append a full Traditional Chinese (繁體中文) translation / paraphrase after the English section (same bilingual formatting default as `*_Editorial.md`).
 5. For `*_Editorial.md`, capture the official Solution section structure, approach names, core ideas, algorithm steps, and complexity notes.
 6. Keep the technical structure close to the live LeetCode page.
 7. Write a high-fidelity rewrite instead of pasting long official text verbatim.
 8. If the file already exists, update it in place instead of creating a duplicate.
 9. In the final report, say whether the content came from the live authenticated session or whether access was blocked.
 10. When the request is part of new-problem initialization from a LeetCode link, do both Description and Editorial sync in the same initialization flow unless the user explicitly asks to skip one.
-11. For `*_Editorial.md`, include the full set of Solution approaches that are visible on the page in English repo notes first, then add the corresponding Chinese translation / paraphrase after that.
+11. For `*_Editorial.md`, include the full set of Solution approaches that are visible on the page in English repo notes first, then add the corresponding Traditional Chinese (繁體中文) translation / paraphrase after that.
+
+## Linux Kernel connection notes (`*_Linux.md`)
+
+When the user mentions a Linux kernel connection (e.g. "kernel 的 list_sort 就是 merge sort 變體") or asks about how a problem relates to real-world kernel code:
+
+1. Create a `*_Linux.md` file in the problem folder (e.g. `23_Merge k Sorted Lists_Linux.md`).
+2. The file must contain:
+   - **Linux 相關原始碼位置** — list the relevant kernel source files (`lib/`, `include/linux/`, test files, etc.) with a brief description of each file's role.
+   - **Kernel vs. LeetCode 實作對照** — compare the kernel implementation against the repo's `.c` solution along dimensions such as: algorithm direction (top-down vs. bottom-up), data structure, merge strategy, stability, complexity, API design (hardcoded vs. generic comparator).
+   - **主管 Code Review 角度考題** — enumerate questions a senior engineer or manager familiar with the kernel codebase might ask during code review, including: expected answer direction, follow-up probes, and what each question is really testing (cache locality awareness, pointer mastery, defensive programming, stack budget, etc.).
+   - **面試加分總結** — bullet points on how to leverage kernel knowledge to stand out in an interview.
+3. Write in Traditional Chinese (繁體中文) by default (matching the repo's annotation convention), with kernel identifiers and code snippets kept in English.
+4. Include a **Sources** section at the end with links to the relevant kernel source on GitHub, LWN articles, or LKML threads.
+
+This file is created on demand (when the user raises the kernel connection), not as part of default initialization.
 
 ## Comparing implementation vs. notes
 
