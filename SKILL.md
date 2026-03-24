@@ -76,6 +76,7 @@ If the user provides a LeetCode problem link during initialization, treat page s
 - `*_Editorial.md` contains the full Solution section structure as repo-maintainable English notes plus corresponding Traditional Chinese (繁體中文) translation / paraphrase
 - `*_Sonnet-4.6.md` has been created with an implementation vs. editorial comparison (see below)
 - the `.c` solution file contains detailed Traditional Chinese (繁體中文) inline comments and ASCII diagram(s) in the top-of-file block comment (see "Traditional Chinese (繁體中文) annotation and diagram rules" below)
+- `*_Linux.md` has been created with a Linux kernel connection analysis (see "Creating `*_Linux.md` during initialization" below)
 - the final report clearly states whether the Editorial content came from the live authenticated LeetCode session or from a fallback source because access was blocked
 
 ### Creating `*_Sonnet-4.6.md` during initialization
@@ -87,6 +88,10 @@ After both the `.c` solution and `*_Editorial.md` are in place, always create `*
 3. **Baseline vs. recommended** — name the baseline approach and the recommended approach, and explain why the recommended one is better for interview discussion.
 
 Write the full English section first, then the full Traditional Chinese (繁體中文) translation / paraphrase after it.
+
+### Creating `*_Linux.md` during initialization
+
+After the `.c` solution and `*_Editorial.md` are in place, always create `*_Linux.md` as part of initialization. Identify which Linux kernel subsystem or utility uses the same (or a closely related) algorithm and produce the file according to the rules in the "Linux Kernel connection notes" section below. If no obvious kernel connection exists for the problem, research broadly — most fundamental data-structure and algorithm patterns (merge sort, hash tables, red-black trees, BFS/DFS, union-find, LRU cache, trie, etc.) have a counterpart somewhere in the kernel source tree. Only skip this file if genuinely no meaningful kernel parallel can be found after a reasonable search.
 
 ## Working method
 
@@ -205,7 +210,7 @@ When the user mentions a Linux kernel connection (e.g. "kernel 的 list_sort 就
 3. Write in Traditional Chinese (繁體中文) by default (matching the repo's annotation convention), with kernel identifiers and code snippets kept in English.
 4. Include a **Sources** section at the end with links to the relevant kernel source on GitHub, LWN articles, or LKML threads.
 
-This file is created on demand (when the user raises the kernel connection), not as part of default initialization.
+This file is created both during initialization (see "Creating `*_Linux.md` during initialization") and on demand when the user raises a kernel connection for an existing problem.
 
 ## Comparing implementation vs. notes
 
