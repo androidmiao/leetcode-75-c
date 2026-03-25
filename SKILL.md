@@ -54,6 +54,7 @@ For a new problem, default to standalone style unless the user explicitly asks f
   - `*_Description.md`
   - `*_Editorial.md`
   - `*_Sonnet-4.6.md`
+  - `*_Memory.md`
 
 Use the nearest existing naming pattern in the repo. Do not normalize the entire repository.
 
@@ -77,6 +78,7 @@ If the user provides a LeetCode problem link during initialization, treat page s
 - `*_Sonnet-4.6.md` has been created with an implementation vs. editorial comparison (see below)
 - the `.c` solution file contains detailed Traditional Chinese (繁體中文) inline comments and ASCII diagram(s) in the top-of-file block comment (see "Traditional Chinese (繁體中文) annotation and diagram rules" below)
 - `*_Linux.md` has been created with a Linux kernel connection analysis (see "Creating `*_Linux.md` during initialization" below)
+- `*_Memory.md` has been created with a memory address / array index diagram (see "Creating `*_Memory.md` during initialization" below)
 - the final report clearly states whether the Editorial content came from the live authenticated LeetCode session or from a fallback source because access was blocked
 
 ### Creating `*_Sonnet-4.6.md` during initialization
@@ -163,6 +165,7 @@ When maintaining markdown notes:
 - `*_Description.md`: problem statement notes
 - `*_Editorial.md`: structured algorithm explanation and complexity notes
 - `*_Sonnet-4.6.md`: working notes, comparisons, and AI-assisted reasoning for that problem
+- `*_Memory.md`: memory address / array index diagrams tracing the algorithm with hypothetical hex addresses
 
 Naming rule for algorithm-explanation notes:
 
@@ -211,6 +214,37 @@ When the user mentions a Linux kernel connection (e.g. "kernel 的 list_sort 就
 4. Include a **Sources** section at the end with links to the relevant kernel source on GitHub, LWN articles, or LKML threads.
 
 This file is created both during initialization (see "Creating `*_Linux.md` during initialization") and on demand when the user raises a kernel connection for an existing problem.
+
+## Memory address / array index diagram notes (`*_Memory.md`)
+
+When the user asks for a memory diagram, or during new-problem initialization from a LeetCode link, create a `*_Memory.md` file in the problem folder (e.g. `700_Search in a Binary Search Tree_Memory.md`).
+
+### Creating `*_Memory.md` during initialization
+
+After the `.c` solution is in place, always create `*_Memory.md` as part of initialization. The file must contain (adapt sections to the problem's data structure):
+
+1. **Struct 記憶體佈局** — field sizes, offsets, and padding for the node/element struct used in the solution. Include a single-node memory diagram with assumed hex address (e.g. 0xA000) showing each field and its pointer target.
+2. **完整資料結構記憶體配置** — a table mapping every node to an assumed address, then an ASCII art memory diagram showing all nodes with pointer arrows, followed by the logical structure diagram (tree / linked list / graph) annotated with addresses.
+3. **陣列索引版對應**（when applicable）— show how the structure maps to a level-order or sequential array, include the index formula (e.g. `2*i+1` for left child), and provide a full index-relationship table.
+4. **搜尋／操作過程追蹤** — for every LeetCode example, trace the algorithm step by step:
+   - show the current pointer value (hex address), the dereferenced value, the comparison result, and the decision taken
+   - draw the pointer position on the structure at each step
+   - show the pointer-move summary box (`舊值 → 新值`)
+   - include both the pointer version and the array-index version of the trace
+5. **指標變數追蹤總表** — a per-example markdown table: step │ address │ value │ comparison │ action, plus summary statistics (pointer moves, nodes visited, path depth).
+6. **記憶體存取模式比較** — compare pointer-based (linked) vs. array-based (implicit) access: cache behaviour, space overhead, insertion/deletion trade-offs.
+7. **堆疊記憶體對比**（when relevant）— compare iterative vs. recursive stack usage with ASCII stack-frame diagrams; show the worst-case (degenerate) scenario.
+8. **退化情況分析**（when relevant）— illustrate the worst-case structure shape, its array representation (with wasted slots), and the complexity impact.
+
+Style rules:
+
+- Write in Traditional Chinese (繁體中文) by default, keeping code identifiers and hex addresses in English.
+- Use `───▶`, `─┐`, `▼`, `◄──` box-drawing characters for pointer arrows in ASCII diagrams.
+- Use `┌─┬─┐ │ ├─┤ └─┴─┘` for memory boxes.
+- Assume fixed hex addresses (0xA000, 0xB000, …) for readability; state that they are hypothetical.
+- Each example trace must be self-contained: a reader should understand the full algorithm execution from the diagrams alone.
+
+This file is created both during initialization and on demand when the user asks for a memory / pointer / array-index diagram for an existing problem.
 
 ## Comparing implementation vs. notes
 
