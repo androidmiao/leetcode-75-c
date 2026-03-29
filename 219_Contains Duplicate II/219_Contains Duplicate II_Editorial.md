@@ -1,160 +1,165 @@
 # 219. Contains Duplicate II - Editorial
 
-## Approach 1: Hash Map with Sliding Window (Recommended)
+## Summary
 
-### Algorithm
+This article is for beginners. It introduces the following ideas: Linear Search, Binary Search Tree and Hash Table.
 
-Maintain a sliding window of at most `k` elements using a hash map. For each element, check if it already exists in the window. If yes, return true (the distance is automatically <= k because the window size is <= k). Otherwise, add it and remove the oldest element if the window exceeds size k.
+## Solution
 
-**Steps:**
-1. Create a hash map to store values and their most recent indices
-2. Initialize two pointers: left = 0, right = 0 (or just use a single pointer with index tracking)
-3. For each element at index i:
-   - Check if nums[i] exists in the hash map
-   - If yes and the last occurrence is within distance k, return true
-   - Add nums[i] with index i to the hash map
-   - If the map size exceeds k, remove the element at index i-k
+### Approach #1: Naive Linear Search
 
-### Complexity Analysis
+**Intuition:** Look for duplicate element in the previous k elements.
 
-- **Time Complexity**: O(n), where n is the length of the array. Each element is processed once.
-- **Space Complexity**: O(min(n, k)), the hash map contains at most k elements.
-
-### Pseudocode
-
-```
-map = {}
-for i = 0 to n-1:
-    if nums[i] in map and i - map[nums[i]] <= k:
-        return true
-    map[nums[i]] = i
-
-    // Keep only k most recent elements
-    if i >= k:
-        remove nums[i-k] from map
-
-return false
-```
-
-## Approach 2: Set with Sliding Window
-
-### Algorithm
-
-Use a set instead of a hash map to store only values (not indices). Maintain the window size at <= k.
+**Algorithm:** This algorithm keeps a virtual sliding window of the previous k elements. We scan for the duplicate in this window. Same as the brute force approach from Contains Duplicate (Problem 217), except that it looks at previous k elements instead of all its previous elements.
 
 **Steps:**
-1. Create a set
-2. For each element at index i:
-   - If the element is in the set, return true
-   - Add the element to the set
-   - If the set size exceeds k, remove the oldest element (nums[i-k])
+1. For each index i from 0 to n-1:
+   - For each index j from max(0, i-k) to i-1:
+     - If nums[i] == nums[j], return true
+2. Return false
 
-### Complexity Analysis
+**Complexity Analysis:**
+- Time complexity: O(n * min(k, n)). It costs O(min(k, n)) time for each linear search. Apparently we do at most n comparisons in one search even if k can be larger than n.
+- Space complexity: O(1).
 
-- **Time Complexity**: O(n)
-- **Space Complexity**: O(min(n, k))
-
-### Pseudocode
-
-```
-set = {}
-for i = 0 to n-1:
-    if nums[i] in set:
-        return true
-    set.add(nums[i])
-
-    if i >= k:
-        set.remove(nums[i-k])
-
-return false
-```
-
-## Approach 3: Brute Force
-
-### Algorithm
-
-For each element, check all elements within distance k to see if there's a duplicate.
-
-**Steps:**
-1. For each index i:
-   - Check all indices from max(0, i-k) to i-1
-   - If any nums[j] == nums[i], return true
-
-### Complexity Analysis
-
-- **Time Complexity**: O(n × k), checking k elements for each of n elements.
-- **Space Complexity**: O(1)
-
-## Comparison
-
-| Approach | Time | Space | Pros | Cons |
-|----------|------|-------|------|------|
-| Hash Map | O(n) | O(min(n,k)) | Optimal, elegant | Requires hash map |
-| Set | O(n) | O(min(n,k)) | Simple, clean | Same as hash map for this problem |
-| Brute Force | O(n × k) | O(1) | No extra space | Slow for large k |
+**Note:** Time Limit Exceeded for large inputs.
 
 ---
 
-# 219. 存在重复元素 II - 编辑社论
+### Approach #2: Binary Search Tree
 
-## 方法1: 哈希表与滑动窗口 (推荐)
+**Intuition:** Keep a sliding window of k elements using self-balancing Binary Search Tree (BST).
 
-### 算法
+**Algorithm:** The key to improve upon Approach #1 is to reduce the search time of the previous k elements. Can we use an auxiliary data structure to maintain a sliding window of k elements with more efficient search, delete, and insert operations? Since elements in the sliding window are strictly First-In-First-Out (FIFO), queue is a natural data structure. A queue using a linked list implementation supports constant time delete and insert operations, however the search costs linear time, which is no better than Approach #1.
 
-使用哈希表维护一个大小至多为 k 的滑动窗口。对于每个元素，检查它是否已在窗口中。如果是，返回 true (距离自动 <= k，因为窗口大小 <= k)。否则，添加它，并在窗口超过大小 k 时移除最旧的元素。
+A better option is to use a self-balancing BST. A BST supports search, delete and insert operations all in O(log k) time, where k is the number of elements in the BST. In most interviews you are not required to implement a self-balancing BST, so you may think of it as a black box. Most programming languages provide implementations (Java: TreeSet/TreeMap; C++ STL: std::set/std::map).
 
-**步骤：**
-1. 创建哈希表存储值及其最近的索引
-2. 初始化指针: left = 0, right = 0
-3. 对于索引 i 处的每个元素：
-   - 检查 nums[i] 是否在哈希表中
-   - 如果是且最后出现的索引在距离 k 内，返回 true
-   - 将 nums[i] 与索引 i 添加到哈希表
-   - 如果表大小超过 k，移除索引 i-k 处的元素
+**Steps:**
+1. Loop through the array, for each element:
+   - Search current element in the BST, return true if found
+   - Put current element in the BST
+   - If the size of the BST is larger than k, remove the oldest item
+2. Return false
 
-### 复杂度分析
+**Complexity Analysis:**
+- Time complexity: O(n * log(min(k, n))). We do n operations of search, delete and insert. Each operation costs logarithmic time complexity in the sliding window which size is min(k, n). Note that even if k can be greater than n, the window size can never exceed n.
+- Space complexity: O(min(n, k)). Space is the size of the sliding window which should not exceed n or k.
 
-- **时间复杂度**: O(n)，其中 n 是数组长度。每个元素被处理一次。
-- **空间复杂度**: O(min(n, k))，哈希表最多包含 k 个元素。
+**Note:** The algorithm still gets Time Limit Exceeded for large n and k.
 
-## 方法2: 集合与滑动窗口
+---
 
-### 算法
+### Approach #3: Hash Table (Recommended)
 
-使用集合而不是哈希表，仅存储值(不存储索引)。维护窗口大小 <= k。
+**Intuition:** Keep a sliding window of k elements using Hash Table.
 
-**步骤：**
-1. 创建集合
-2. 对于索引 i 处的每个元素：
-   - 如果元素在集合中，返回 true
-   - 将元素添加到集合
-   - 如果集合大小超过 k，移除最旧的元素(nums[i-k])
+**Algorithm:** From the previous approaches, we know that even logarithmic performance in search is not enough. In this case, we need a data structure supporting constant time search, delete and insert operations. Hash Table is the answer. The algorithm and implementation are almost identical to Approach #2.
 
-### 复杂度分析
+**Steps:**
+1. Loop through the array, for each element:
+   - Search current element in the HashTable, return true if found
+   - Put current element in the HashTable
+   - If the size of the HashTable is larger than k, remove the oldest item
+2. Return false
 
-- **时间复杂度**: O(n)
-- **空间复杂度**: O(min(n, k))
+**Complexity Analysis:**
+- Time complexity: O(n). We do n operations of search, delete and insert, each with constant time complexity.
+- Space complexity: O(min(n, k)). The extra space required depends on the number of items stored in the hash table, which is the size of the sliding window, min(n, k).
 
-## 方法3: 暴力法
+## Comparison
 
-### 算法
+| Approach | Time | Space | Status |
+|----------|------|-------|--------|
+| #1 Naive Linear Search | O(n * min(k, n)) | O(1) | TLE |
+| #2 Binary Search Tree | O(n * log(min(k, n))) | O(min(n, k)) | TLE |
+| #3 Hash Table | O(n) | O(min(n, k)) | Accepted |
 
-对于每个元素，检查距离 k 内的所有元素是否有重复。
+## See Also
 
-**步骤：**
-1. 对于索引 i：
-   - 检查索引从 max(0, i-k) 到 i-1 的所有元素
-   - 如果任何 nums[j] == nums[i]，返回 true
+- Problem 217 Contains Duplicate
+- Problem 220 Contains Duplicate III
 
-### 复杂度分析
+---
 
-- **时间复杂度**: O(n × k)
-- **空间复杂度**: O(1)
+# 219. 存在重複元素 II - 社論（繁體中文）
 
-## 比较
+## 摘要
 
-| 方法 | 时间 | 空间 | 优点 | 缺点 |
-|------|------|------|------|------|
-| 哈希表 | O(n) | O(min(n,k)) | 最优，优雅 | 需要哈希表 |
-| 集合 | O(n) | O(min(n,k)) | 简单清晰 | 与哈希表相同 |
-| 暴力法 | O(n × k) | O(1) | 无额外空间 | 大k时缓慢 |
+本文適合初學者，介紹以下概念：線性搜尋、二元搜尋樹與雜湊表。
+
+## 解法
+
+### 方法 #1：暴力線性搜尋
+
+**直覺：** 在前 k 個元素中尋找重複元素。
+
+**演算法：** 此演算法維護一個包含前 k 個元素的虛擬滑動視窗，在此視窗內掃描是否有重複。與 Contains Duplicate（第 217 題）的暴力法相同，差別在於只看前 k 個元素而非所有先前元素。
+
+**步驟：**
+1. 對每個索引 i（從 0 到 n-1）：
+   - 對每個索引 j（從 max(0, i-k) 到 i-1）：
+     - 若 nums[i] == nums[j]，回傳 true
+2. 回傳 false
+
+**複雜度分析：**
+- 時間複雜度：O(n * min(k, n))。每次線性搜尋花費 O(min(k, n)) 時間。即使 k 大於 n，一次搜尋最多也只做 n 次比較。
+- 空間複雜度：O(1)。
+
+**注意：** 大型輸入會超時（TLE）。
+
+---
+
+### 方法 #2：二元搜尋樹
+
+**直覺：** 使用自平衡二元搜尋樹（BST）維護大小為 k 的滑動視窗。
+
+**演算法：** 改進方法 #1 的關鍵在於降低前 k 個元素的搜尋時間。是否能用輔助資料結構維護一個大小為 k 的滑動視窗，並提供更高效的搜尋、刪除、插入操作？
+
+由於視窗中的元素嚴格按照先進先出（FIFO）順序，佇列是自然的選擇。但鏈結串列實作的佇列雖然支援 O(1) 的刪除和插入，搜尋仍然需要線性時間，與方法 #1 相比沒有改善。
+
+更好的選擇是使用自平衡 BST。BST 的搜尋、刪除和插入操作都是 O(log k) 時間。面試中通常不需要自己實作自平衡 BST，可將其視為黑盒子。大多數程式語言都有內建實作（Java：TreeSet/TreeMap；C++ STL：std::set/std::map）。
+
+**步驟：**
+1. 遍歷陣列，對每個元素：
+   - 在 BST 中搜尋當前元素，若找到則回傳 true
+   - 將當前元素放入 BST
+   - 若 BST 大小超過 k，移除最舊的元素
+2. 回傳 false
+
+**複雜度分析：**
+- 時間複雜度：O(n * log(min(k, n)))。我們做 n 次搜尋、刪除和插入操作，每次操作在大小為 min(k, n) 的滑動視窗中花費對數時間。即使 k 大於 n，視窗大小也不會超過 n。
+- 空間複雜度：O(min(n, k))。空間即滑動視窗的大小，不會超過 n 或 k。
+
+**注意：** 此演算法在大的 n 和 k 下仍然會超時（TLE）。
+
+---
+
+### 方法 #3：雜湊表（推薦）
+
+**直覺：** 使用雜湊表維護大小為 k 的滑動視窗。
+
+**演算法：** 從前兩種方法得知，即使是對數級的搜尋效能也不夠。我們需要一個支援常數時間搜尋、刪除和插入的資料結構——雜湊表就是答案。演算法和實作與方法 #2 幾乎相同。
+
+**步驟：**
+1. 遍歷陣列，對每個元素：
+   - 在雜湊表中搜尋當前元素，若找到則回傳 true
+   - 將當前元素放入雜湊表
+   - 若雜湊表大小超過 k，移除最舊的元素
+2. 回傳 false
+
+**複雜度分析：**
+- 時間複雜度：O(n)。我們做 n 次搜尋、刪除和插入操作，每次操作都是常數時間。
+- 空間複雜度：O(min(n, k))。額外空間取決於雜湊表中儲存的元素數量，即滑動視窗的大小 min(n, k)。
+
+## 比較
+
+| 方法 | 時間 | 空間 | 狀態 |
+|------|------|------|------|
+| #1 暴力線性搜尋 | O(n * min(k, n)) | O(1) | 超時 |
+| #2 二元搜尋樹 | O(n * log(min(k, n))) | O(min(n, k)) | 超時 |
+| #3 雜湊表 | O(n) | O(min(n, k)) | 通過 |
+
+## 延伸閱讀
+
+- 第 217 題 Contains Duplicate
+- 第 220 題 Contains Duplicate III
