@@ -1,144 +1,203 @@
 /*
- * LeetCode 49. 異位詞分組
+ * LeetCode 49. Group Anagrams（異位詞分組）
  * 難度：Medium
+ * 時間複雜度：O(NK log K)，N = 字串個數，K = 最長字串長度
+ * 空間複雜度：O(NK)
  *
- * 問題描述：
- * 給定一個字符串數組，將異位詞組合在一起。異位詞是指由相同字符組成但順序不同的單詞。
- *
- * 演算法：雜湊表 + 字符串排序
+ * ===== 演算法：排序字串 + qsort 分組 =====
  *
  * 核心思想：
- * - 對每個字符串進行排序，得到標準形式(sorted key)
- * - 相同的異位詞在排序後會有相同的標準形式
- * - 使用雜湊表(或在C中使用數組模擬)將標準形式作為鍵，將所有異位詞分組
- * - 最後將各組收集起來返回
+ *   異位詞排序後一定相同，例如 "eat", "tea", "ate" 排序後都是 "aet"。
+ *   因此可以用「排序後的字串」作為分組依據（canonical key）。
  *
- * 複雜度分析：
- * - 時間複雜度：O(n * m log m)
- *   其中 n 是字符串個數，m 是最長字符串長度
- *   每個字符串排序需要 O(m log m)
- * - 空間複雜度：O(n * m)
- *   存儲所有字符串的副本(排序後的形式)
+ * 由於 C 語言沒有內建 HashMap，本解法改用 qsort 排序所有
+ * (sorted_key, original_string) 配對，讓相同異位詞在排序後相鄰，
+ * 再一次線性掃描即可分組。
+ *
+ * ===== 逐步演算流程（以 Example 1 為例）=====
+ *
+ * 輸入：strs = ["eat", "tea", "tan", "ate", "nat", "bat"]
+ *
+ * 步驟一：對每個字串排序，建立 (sorted, original) 配對
+ *
+ *   原始字串    排序後
+ *   ─────────  ─────────
+ *   "eat"   →  "aet"
+ *   "tea"   →  "aet"
+ *   "tan"   →  "ant"
+ *   "ate"   →  "aet"
+ *   "nat"   →  "ant"
+ *   "bat"   →  "abt"
+ *
+ * 步驟二：按 sorted key 排序所有配對（相同 key 按原始字串排序）
+ *
+ *   排序後      原始字串
+ *   ─────────  ─────────
+ *   "abt"      "bat"       ← 群組 1
+ *   "aet"      "ate"       ← 群組 2 開始
+ *   "aet"      "eat"       │
+ *   "aet"      "tea"       ← 群組 2 結束
+ *   "ant"      "nat"       ← 群組 3 開始
+ *   "ant"      "tan"       ← 群組 3 結束
+ *
+ * 步驟三：線性掃描，連續相同 sorted key 收入同一群組
+ *
+ *   result[0] = ["bat"]
+ *   result[1] = ["ate", "eat", "tea"]
+ *   result[2] = ["nat", "tan"]
+ *
+ * ===== ASCII 圖示：pairs 陣列排序前後 =====
+ *
+ * 排序前 pairs[]:
+ * ┌───────────────────────────────────────────────────┐
+ * │ [0] ("aet","eat")  [1] ("aet","tea")              │
+ * │ [2] ("ant","tan")  [3] ("aet","ate")              │
+ * │ [4] ("ant","nat")  [5] ("abt","bat")              │
+ * └───────────────────────────────────────────────────┘
+ *
+ * 排序後 pairs[]（qsort by sorted key, then by original）:
+ * ┌───────────────────────────────────────────────────┐
+ * │ [0] ("abt","bat")                                  │  ← group 0
+ * │ [1] ("aet","ate")  [2] ("aet","eat")              │
+ * │ [3] ("aet","tea")                                  │  ← group 1
+ * │ [4] ("ant","nat")  [5] ("ant","tan")              │  ← group 2
+ * └───────────────────────────────────────────────────┘
+ *        ▲                                    ▲
+ *        │ strcmp 比較 sorted key              │
+ *        │ 不同 → 開新群組                     │
+ *        │ 相同 → 加入當前群組                 │
+ *
+ * ===== 記憶體配置示意 =====
+ *
+ *  result (char***)
+ *  ┌─────────┬─────────┬─────────┐
+ *  │ grp[0]  │ grp[1]  │ grp[2]  │
+ *  └────┬────┴────┬────┴────┬────┘
+ *       │         │         │
+ *       ▼         ▼         ▼
+ *    char**     char**     char**
+ *   ┌──────┐  ┌──────┐  ┌──────┐
+ *   │"bat" │  │"ate" │  │"nat" │
+ *   └──────┘  │"eat" │  │"tan" │
+ *             │"tea" │  └──────┘
+ *             └──────┘
  */
 
 #include <stdlib.h>
 #include <string.h>
 
-/* 比較函數：用於排序字符串中的字符 */
+/* 比較函數：用於 qsort 排序字串中的字元（按 ASCII 值升序）*/
 int compare_char(const void* a, const void* b) {
-    return *(char*)a - *(char*)b;
+    return *(char*)a - *(char*)b;  /* 字元比較，回傳差值決定順序 */
 }
 
-/* 比較函數：用於排序結構體數組 */
-/* 首先按排序後的字符串比較，相同則按原始字符串比較 */
+/* 比較函數：用於 qsort 排序 (sorted_key, original) 配對陣列 */
+/* 先依排序後字串比較；若相同，再依原始字串比較（確保穩定性） */
 int compare_pairs(const void* a, const void* b) {
-    const char** pair_a = (const char**)a;
+    const char** pair_a = (const char**)a;  /* pair_a[0]=sorted, pair_a[1]=original */
     const char** pair_b = (const char**)b;
 
-    /* 先比較排序後的字符串(pair[0]) */
+    /* 先比較排序後的字串（canonical key） */
     int cmp = strcmp(pair_a[0], pair_b[0]);
     if (cmp != 0) return cmp;
 
-    /* 如果排序後的字符串相同，再比較原始字符串(pair[1]) */
+    /* 若 sorted key 相同，比較原始字串（使同組內字串有確定順序） */
     return strcmp(pair_a[1], pair_b[1]);
 }
 
 /**
- * 返回值是一個指向字符串指針的指針的指針的數組，行數和列數通過指針返回
+ * groupAnagrams - 將異位詞分組
+ * @strs:              輸入字串陣列
+ * @strsSize:          字串個數
+ * @returnSize:        [輸出] 群組數量
+ * @returnColumnSizes: [輸出] 每個群組包含的字串數量
+ *
+ * 回傳值：char***，即二維字串陣列（每個群組是一個 char** 陣列）
  */
 char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** returnColumnSizes) {
-    /* 特殊處理：空輸入 */
+    /* 邊界情況：空輸入直接回傳 */
     if (strsSize == 0) {
         *returnSize = 0;
         *returnColumnSizes = (int*)malloc(0);
         return (char***)malloc(0);
     }
 
-    /* 創建臨時數組存儲(排序後的字符串, 原始字符串)對 */
-    /* 使用二維數組：pairs[i][0] = 排序後的字符串，pairs[i][1] = 原始字符串 */
+    /* ====== 步驟一：建立 (sorted_key, original) 配對 ====== */
+
+    /* 分配暫存陣列：sorted_strs[i] = strs[i] 排序後的副本 */
     char** sorted_strs = (char**)malloc(strsSize * sizeof(char*));
+    /* original_strs[i] = strs[i] 的原始指標（不複製，僅引用） */
     char** original_strs = (char**)malloc(strsSize * sizeof(char*));
 
-    /* 第一步：對每個字符串進行排序，創建(排序字符串, 原始字符串)配對 */
     for (int i = 0; i < strsSize; i++) {
         int str_len = strlen(strs[i]);
 
-        /* 復制字符串以便排序 */
+        /* 複製字串以便排序（不破壞原始資料） */
         sorted_strs[i] = (char*)malloc((str_len + 1) * sizeof(char));
         strcpy(sorted_strs[i], strs[i]);
 
-        /* 對復制的字符串進行排序 */
-        /* qsort 使用 compare_char 比較函數按ASCII值排序字符 */
+        /* 對副本中的字元按 ASCII 值排序 → 得到 canonical key */
+        /* 例如 "eat" → "aet"，"tea" → "aet" */
         qsort(sorted_strs[i], str_len, sizeof(char), compare_char);
 
-        /* 保存原始字符串指針 */
+        /* 保存指向原始字串的指標 */
         original_strs[i] = strs[i];
     }
 
-    /* 第二步：按排序後的字符串排序，將異位詞組織在一起 */
-    /* 創建配對數組用於排序 */
+    /* ====== 步驟二：將所有配對按 sorted key 排序 ====== */
+
+    /* pairs[i] 是一個 char*[2]：pairs[i][0]=sorted, pairs[i][1]=original */
     char*** pairs = (char***)malloc(strsSize * sizeof(char**));
     for (int i = 0; i < strsSize; i++) {
         pairs[i] = (char**)malloc(2 * sizeof(char*));
-        pairs[i][0] = sorted_strs[i];
-        pairs[i][1] = original_strs[i];
+        pairs[i][0] = sorted_strs[i];   /* 排序後的字串（作為分組鍵） */
+        pairs[i][1] = original_strs[i];  /* 原始字串（最終放入結果） */
     }
 
-    /* 根據排序後的字符串進行排序 */
-    /* 這樣相同的異位詞會被組織在一起 */
+    /* 按 sorted key 排序 → 相同異位詞在陣列中相鄰 */
     qsort(pairs, strsSize, sizeof(char**), compare_pairs);
 
-    /* 第三步：構造返回的二維數組 */
-    /* 結果數組：result[i] 存儲第i個異位詞組的所有單詞 */
-    char*** result = (char***)malloc(strsSize * sizeof(char**));
+    /* ====== 步驟三：線性掃描建立分組結果 ====== */
 
-    /* 列大小數組：每個異位詞組有多少個單詞 */
+    /* result[i] = 第 i 個群組的字串指標陣列 */
+    char*** result = (char***)malloc(strsSize * sizeof(char**));
+    /* col_sizes[i] = 第 i 個群組包含多少個字串 */
     int* col_sizes = (int*)malloc(strsSize * sizeof(int));
 
-    /* 記錄當前有多少個組 */
-    int group_count = 0;
+    int group_count = 0;         /* 目前群組總數 */
+    int current_group_size = 0;  /* 當前群組已收集的字串數 */
+    char* current_sorted = NULL; /* 當前群組的 sorted key（用於比較） */
 
-    /* 每個組當前有多少個單詞 */
-    int current_group_size = 0;
-
-    /* 當前組的排序字符串(用於判斷異位詞是否相同) */
-    char* current_sorted = NULL;
-
-    /* 遍歷排序後的配對數組 */
     for (int i = 0; i < strsSize; i++) {
-        char* sorted = pairs[i][0];
-        char* original = pairs[i][1];
+        char* sorted = pairs[i][0];    /* 當前配對的 sorted key */
+        char* original = pairs[i][1];  /* 當前配對的原始字串 */
 
-        /* 如果這是新的一組(排序字符串與前一個不同) */
+        /* 若 sorted key 與前一個不同 → 進入新的群組 */
         if (current_sorted == NULL || strcmp(sorted, current_sorted) != 0) {
-            /* 創建新組 */
             group_count++;
-
-            /* 分配該組的字符串指針數組 */
-            /* 初始分配，之後會根據需要調整 */
+            /* 為新群組分配指標陣列（最多 strsSize 個元素） */
             result[group_count - 1] = (char**)malloc(strsSize * sizeof(char*));
-
             col_sizes[group_count - 1] = 0;
             current_group_size = 0;
-            current_sorted = sorted;
+            current_sorted = sorted;  /* 更新當前群組的 key */
         }
 
-        /* 將原始字符串添加到當前組 */
+        /* 將原始字串加入當前群組 */
         result[group_count - 1][current_group_size] = original;
         col_sizes[group_count - 1]++;
         current_group_size++;
     }
 
-    /* 第四步：清理臨時數組 */
+    /* ====== 步驟四：釋放暫存記憶體 ====== */
     for (int i = 0; i < strsSize; i++) {
-        free(sorted_strs[i]);
-        free(pairs[i]);
+        free(sorted_strs[i]);  /* 釋放排序後的字串副本 */
+        free(pairs[i]);        /* 釋放配對結構 */
     }
     free(sorted_strs);
     free(original_strs);
     free(pairs);
 
-    /* 設置返回的行數和列大小 */
+    /* 設定回傳參數 */
     *returnSize = group_count;
     *returnColumnSizes = col_sizes;
 

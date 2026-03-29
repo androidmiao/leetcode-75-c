@@ -2,18 +2,22 @@
 
 ## Problem Statement
 
-Given an array of strings `strs`, group the anagrams together. You can return the answer in any order.
+Given an array of strings `strs`, group the anagrams together. You can return the answer in **any order**.
 
-An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.
+An **Anagram** is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.
 
 ## Examples
 
 ### Example 1:
 ```
-Input: strs = ["eat","tea","ate","eat","tan","ant"]
+Input: strs = ["eat","tea","tan","ate","nat","bat"]
 Output: [["bat"],["nat","tan"],["ate","eat","tea"]]
-(Note: The grouping order may differ; what matters is that anagrams are grouped together)
 ```
+
+**Explanation:**
+- There is no string in strs that can be rearranged to form `"bat"`.
+- The strings `"nat"` and `"tan"` are anagrams as they can be rearranged to form each other.
+- The strings `"ate"`, `"eat"`, and `"tea"` are anagrams as they can be rearranged to form each other.
 
 ### Example 2:
 ```
@@ -33,20 +37,51 @@ Output: [["a"]]
 - `0 <= strs[i].length <= 100`
 - `strs[i]` consists of lowercase English letters.
 
-## Key Insights
+---
 
-1. **Anagram Property**: Two strings are anagrams if and only if they have the same character frequencies or the same sorted form.
+# 49. 異位詞分組
 
-2. **Sorted Key**: Sorting each string gives a canonical form. All anagrams will have the same sorted form.
+## 題目描述
 
-3. **Grouping**: Strings with the same sorted form belong to the same anagram group.
+給定一個字串陣列 `strs`，將**異位詞**組合在一起。可以按任意順序返回結果。
 
-4. **Time Complexity**: The sorting of individual strings (O(m log m) per string) dominates the overall complexity.
+**異位詞（Anagram）** 是指透過重新排列不同單詞或片語的字母而形成的單詞或片語，通常恰好使用所有原始字母各一次。
 
-5. **Space Complexity**: We need space to store all strings and their sorted copies.
+## 範例
 
-## Approaches
+### 範例 1：
+```
+輸入：strs = ["eat","tea","tan","ate","nat","bat"]
+輸出：[["bat"],["nat","tan"],["ate","eat","tea"]]
+```
 
-1. **Hash Map + Sorting** (Recommended): Sort each string and use it as a key in a hash map. In C, we can simulate this by sorting pairs of (sorted_string, original_string) and then grouping consecutive identical sorted strings.
+**說明：**
+- strs 中沒有任何字串可以重新排列形成 `"bat"`。
+- 字串 `"nat"` 和 `"tan"` 是異位詞，因為它們可以互相重新排列而成。
+- 字串 `"ate"`、`"eat"` 和 `"tea"` 是異位詞，因為它們可以互相重新排列而成。
 
-2. **Character Count + Hash Map**: Count character frequencies for each string and use the frequency signature as a hash key. More complex to implement in C without a proper hash table library.
+### 範例 2：
+```
+輸入：strs = [""]
+輸出：[[""]]
+```
+
+### 範例 3：
+```
+輸入：strs = ["a"]
+輸出：[["a"]]
+```
+
+## 限制條件
+
+- `1 <= strs.length <= 10^4`
+- `0 <= strs[i].length <= 100`
+- `strs[i]` 僅包含小寫英文字母。
+
+## 關鍵觀察
+
+1. **異位詞性質**：兩個字串是異位詞，當且僅當它們擁有相同的字元頻率，或者排序後的形式相同。
+2. **排序鍵**：將每個字串排序可得到一個標準形式（canonical form），所有異位詞排序後都會得到相同的標準形式。
+3. **分組策略**：具有相同排序形式的字串屬於同一個異位詞群組。
+4. **時間複雜度**：單個字串排序（每個 O(m log m)）主導了整體複雜度。
+5. **空間複雜度**：需要額外空間儲存所有字串及其排序副本。

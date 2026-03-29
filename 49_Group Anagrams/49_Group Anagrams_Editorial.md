@@ -1,144 +1,123 @@
 # 49. Group Anagrams - Editorial
 
-## Approach 1: Sorted String as Key (Recommended)
+*Content synced from the live authenticated LeetCode Editorial page.*
+
+## Approach 1: Categorize by Sorted String
+
+### Intuition
+
+Two strings are anagrams if and only if their sorted strings are equal.
 
 ### Algorithm
 
-The key insight is that if we sort the characters in each string, all anagrams will produce the same sorted string. We can use this sorted string as a key to group anagrams together.
+Maintain a map `ans: {String -> List}` where each key K is a sorted string, and each value is the list of strings from the initial input that when sorted, are equal to K.
 
-**Steps:**
-1. Create a hash map where keys are sorted strings and values are lists of original strings
-2. For each string in the input:
-   - Sort the string to get a canonical form
-   - Use this sorted string as a key
-   - Add the original string to the list of values for this key
-3. Return all the lists of grouped anagrams
+In Java, we store the key as a string, e.g. `code`. In Python, we store the key as a hashable tuple, e.g. `('c', 'o', 'd', 'e')`.
+
+**Example:**
+```
+strs = ["are", "bat", "ear", "code", "tab", "era"]
+
+Java:  ans = {"aer": ["are", "ear", "era"], "abt": ["bat", "tab"], "cdeo": ["code"]}
+Python: ans = {('a','e','r'): ["are","ear","era"], ('a','b','t'): ["bat","tab"], ('c','d','e','o'): ["code"]}
+```
 
 ### Complexity Analysis
 
-- **Time Complexity**: O(n * m log m) where n is the number of strings and m is the maximum length of a string. Sorting each string takes O(m log m).
-- **Space Complexity**: O(n * m) to store all the strings and their sorted copies in the hash map.
+- **Time Complexity**: O(NK log K), where N is the length of `strs`, and K is the maximum length of a string in `strs`. The outer loop has complexity O(N) as we iterate through each string. Then, we sort each string in O(K log K) time.
+- **Space Complexity**: O(NK), the total information content stored in `ans`.
 
-### Pseudocode
+## Approach 2: Categorize by Count
 
-```
-map = {}
-for each string s in strs:
-    sorted_s = sort(s)
-    if sorted_s not in map:
-        map[sorted_s] = []
-    map[sorted_s].append(s)
+### Intuition
 
-return values of map
-```
-
-### Code (Conceptual - In C, we use qsort approach)
-
-```c
-// Sort pairs of (sorted_string, original_string)
-// Then group consecutive identical sorted strings
-for i = 0 to n-1:
-    sorted[i] = sort(strs[i])
-    pair[i] = (sorted[i], strs[i])
-
-sort(pair) by sorted_string
-
-// Group consecutive pairs with same sorted string
-result = []
-current_group = []
-for i = 0 to n-1:
-    if i == 0 or pair[i].sorted != pair[i-1].sorted:
-        if current_group is not empty:
-            result.append(current_group)
-        current_group = [pair[i].original]
-    else:
-        current_group.append(pair[i].original)
-result.append(current_group)
-
-return result
-```
-
-## Approach 2: Character Frequency Count
+Two strings are anagrams if and only if their character counts (respective number of occurrences of each character) are the same.
 
 ### Algorithm
 
-Instead of sorting, we can count the frequency of each character and use the frequency signature as a key.
+We can transform each string s into a character count, `count`, consisting of 26 non-negative integers representing the number of a's, b's, c's, etc. We use these counts as the basis for our hash map.
 
-**Steps:**
-1. For each string, count the frequency of each character
-2. Create a string representation of the frequency (e.g., "1a2b3c..." for "abc abc abc")
-3. Use this frequency signature as a key in a hash map
-4. Group strings with the same frequency signature
+**Example:**
+```
+strs = ["aab", "aba", "baa", "abbccc"]
+
+Java:  ans = {"#2#1#0#0...#0": ["aab", "aba", "baa"], "#1#2#3#0#0#0...#0": ["abbccc"]}
+                   (26 total entries)
+Python: ans = {(2, 1, 0, 0, ..., 0): ["aab", "aba", "baa"], (1, 2, 3, 0, 0, ..., 0): ["abbccc"]}
+                   (26 total entries)
+```
 
 ### Complexity Analysis
 
-- **Time Complexity**: O(n * m) where n is the number of strings and m is the maximum length. Counting frequencies is O(m) per string.
-- **Space Complexity**: O(n * m) for storing all strings and their frequency signatures.
-
-### Code Concept
-
-```
-map = {}
-for each string s in strs:
-    freq = count_frequencies(s)
-    freq_signature = create_signature(freq)  // e.g., "1a1b1c"
-    if freq_signature not in map:
-        map[freq_signature] = []
-    map[freq_signature].append(s)
-
-return values of map
-```
+- **Time Complexity**: O(NK), where N is the length of `strs`, and K is the maximum length of a string in `strs`. Counting each string is linear in the size of the string, and we count every string.
+- **Space Complexity**: O(NK), the total information content stored in `ans`.
 
 ## Comparison
 
-| Approach | Time | Space | Pros | Cons |
-|----------|------|-------|------|------|
-| Sorted String | O(n * m log m) | O(n * m) | Simple, intuitive | Sorting overhead |
-| Character Frequency | O(n * m) | O(n * m) | Slightly faster | More complex implementation |
+| Approach | Time | Space | Key Idea |
+|----------|------|-------|----------|
+| Sorted String | O(NK log K) | O(NK) | Sort each string as canonical key |
+| Character Count | O(NK) | O(NK) | Use 26-int frequency vector as key |
 
 ---
 
-# 49. 字母异位词分组 - 编辑社论
+# 49. 異位詞分組 - 編輯社論
 
-## 方法1: 排序字符串作为键 (推荐)
+*內容取自 LeetCode 官方 Editorial 頁面（已登入之認證瀏覽器工作階段）。*
 
-### 算法
+## 方法一：依排序字串分類（Categorize by Sorted String）
 
-关键洞察是：如果我们对每个字符串的字符进行排序，所有异位词都会产生相同的排序字符串。我们可以将这个排序字符串用作键来分组异位词。
+### 直覺
 
-**步骤：**
-1. 创建一个哈希表，其中键是排序后的字符串，值是原始字符串列表
-2. 对于输入中的每个字符串：
-   - 对字符串进行排序以获得规范形式
-   - 使用此排序字符串作为键
-   - 将原始字符串添加到此键对应的值列表中
-3. 返回所有分组的异位词列表
+兩個字串是異位詞，當且僅當它們排序後的字串相等。
 
-### 复杂度分析
+### 演算法
 
-- **时间复杂度**: O(n * m log m)，其中 n 是字符串个数，m 是最长字符串长度。排序每个字符串需要 O(m log m)。
-- **空间复杂度**: O(n * m) 以存储哈希表中的所有字符串及其排序副本。
+維護一個映射 `ans: {String -> List}`，其中每個鍵 K 是排序後的字串，每個值是初始輸入中排序後等於 K 的所有字串列表。
 
-## 方法2: 字符频率计数
+在 Java 中，我們將鍵儲存為字串，例如 `code`。在 Python 中，我們將鍵儲存為可雜湊的元組，例如 `('c', 'o', 'd', 'e')`。
 
-### 算法
+**範例：**
+```
+strs = ["are", "bat", "ear", "code", "tab", "era"]
 
-我们可以计数每个字符的出现次数，并使用频率签名作为键。
+Java:  ans = {"aer": ["are", "ear", "era"], "abt": ["bat", "tab"], "cdeo": ["code"]}
+Python: ans = {('a','e','r'): ["are","ear","era"], ('a','b','t'): ["bat","tab"], ('c','d','e','o'): ["code"]}
+```
 
-**步骤：**
-1. 对于每个字符串，计数每个字符的频率
-2. 创建频率的字符串表示形式(例如 "1a2b3c..." 表示"abc abc abc")
-3. 使用此频率签名作为哈希表中的键
-4. 将具有相同频率签名的字符串分组
+### 複雜度分析
 
-### 复杂度分析
+- **時間複雜度**：O(NK log K)，其中 N 是 `strs` 的長度，K 是 `strs` 中最長字串的長度。外層迴圈複雜度為 O(N)，每個字串排序需要 O(K log K)。
+- **空間複雜度**：O(NK)，即 `ans` 中儲存的全部資訊量。
 
-- **时间复杂度**: O(n * m)，其中 n 是字符串个数，m 是最长字符串长度。计数频率是 O(m)。
-- **空间复杂度**: O(n * m) 用于存储所有字符串及其频率签名。
+## 方法二：依字元計數分類（Categorize by Count）
 
-## 比较
+### 直覺
 
-| 方法 | 时间 | 空间 | 优点 | 缺点 |
-|------|------|------|------|------|
-| 排序字符串 | O(n * m log m) | O(n * m) | 简单直观 | 排序开销 |
-| 字符频率 | O(n * m) | O(n * m) | 略快 | 实现更复杂 |
+兩個字串是異位詞，當且僅當它們的字元計數（每個字元各自出現的次數）相同。
+
+### 演算法
+
+我們可以將每個字串 s 轉換為一個字元計數 `count`，由 26 個非負整數組成，分別代表 a、b、c 等字母的出現次數。我們以這些計數作為雜湊映射的鍵。
+
+**範例：**
+```
+strs = ["aab", "aba", "baa", "abbccc"]
+
+Java:  ans = {"#2#1#0#0...#0": ["aab", "aba", "baa"], "#1#2#3#0#0#0...#0": ["abbccc"]}
+                   （共 26 項）
+Python: ans = {(2, 1, 0, 0, ..., 0): ["aab", "aba", "baa"], (1, 2, 3, 0, 0, ..., 0): ["abbccc"]}
+                   （共 26 項）
+```
+
+### 複雜度分析
+
+- **時間複雜度**：O(NK)，其中 N 是 `strs` 的長度，K 是 `strs` 中最長字串的長度。計數每個字串與字串大小成線性關係，且我們對每個字串都要計數。
+- **空間複雜度**：O(NK)，即 `ans` 中儲存的全部資訊量。
+
+## 比較
+
+| 方法 | 時間 | 空間 | 核心思想 |
+|------|------|------|----------|
+| 排序字串 | O(NK log K) | O(NK) | 排序每個字串作為標準鍵 |
+| 字元計數 | O(NK) | O(NK) | 使用 26 個整數的頻率向量作為鍵 |
