@@ -1,6 +1,6 @@
 不完全一樣，但**核心思路是一樣的**。
 
-[933_Number of Recent Calls_Solution.md](/Users/alex.miao/Documents/GitHub/leetcode-75-c/933_Number of Recent Calls/933_Number of Recent Calls_Solution.md) 的解法是：
+[933_Number of Recent Calls_Editorial.md](/Users/alex.miao/Documents/GitHub/leetcode-75-c/933_Number of Recent Calls/933_Number of Recent Calls_Editorial.md) 的解法是：
 
 - 用 **sliding window**
 - 每次 `ping(t)` 先加入新時間
