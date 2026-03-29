@@ -13,7 +13,7 @@ Use this skill for tasks inside the `leetcode-75-c` repository when the user wan
 - prepare a problem with a Google LeetCode interview focus
 - sync LeetCode Description / Editorial content into local markdown notes
 - compare the current implementation against editorial notes
-- maintain `README.md`, `*_Description.md`, `*_Editorial.md`, or `*_Sonnet-4.6.md`
+- maintain `README.md`, `*_Description.md`, `*_Editorial.md`, or `*_Opus-4.6.md`
 
 ## Folder styles
 
@@ -26,7 +26,7 @@ Usually contains:
 - one `Problem Name.c`
 - `*_Description.md`
 - `*_Editorial.md`
-- `*_Sonnet-4.6.md`
+- `*_Opus-4.6.md`
 
 This is the default and preferred style for new problems.
 
@@ -53,7 +53,7 @@ For a new problem, default to standalone style unless the user explicitly asks f
 - optional companions when requested or clearly implied by the task:
   - `*_Description.md`
   - `*_Editorial.md`
-  - `*_Sonnet-4.6.md`
+  - `*_Opus-4.6.md`
   - `*_Memory.md`
 
 Use the nearest existing naming pattern in the repo. Do not normalize the entire repository.
@@ -65,25 +65,22 @@ Use the nearest existing naming pattern in the repo. Do not normalize the entire
 - treat the standalone `.c` file as the main teaching artifact for explanation-heavy tasks
 - keep verification lightweight unless the user explicitly asks for a harness
 
-If the user wants LeetCode page syncing during new-problem setup, also create:
+Initialization **always** requires opening the LeetCode problem page in the browser, regardless of whether the user provides a link. If the user does not provide a URL, construct it from the problem number/name (e.g. `https://leetcode.com/problems/<slug>/`) and open it via Chrome DevTools MCP. If the slug cannot be determined, ask the user for the link before proceeding.
 
-- `*_Description.md`
-- `*_Editorial.md`
-
-If the user provides a LeetCode problem link during initialization, treat page syncing as part of initialization by default. In that case, initialization is not complete until:
+Treat page syncing as part of every initialization. Initialization is not complete until:
 
 - `*_Description.md` has been synced from the Description page, with the full English section first followed by a full Traditional Chinese (繁體中文) translation / paraphrase (same bilingual formatting as `*_Editorial.md`)
 - `*_Editorial.md` has been synced from the Editorial page when the editorial is accessible
 - `*_Editorial.md` contains the full Solution section structure as repo-maintainable English notes plus corresponding Traditional Chinese (繁體中文) translation / paraphrase
-- `*_Sonnet-4.6.md` has been created with an implementation vs. editorial comparison (see below)
+- `*_Opus-4.6.md` has been created with an implementation vs. editorial comparison (see below)
 - the `.c` solution file contains detailed Traditional Chinese (繁體中文) inline comments and ASCII diagram(s) in the top-of-file block comment (see "Traditional Chinese (繁體中文) annotation and diagram rules" below)
 - `*_Linux.md` has been created with a Linux kernel connection analysis (see "Creating `*_Linux.md` during initialization" below)
 - `*_Memory.md` has been created with a memory address / array index diagram (see "Creating `*_Memory.md` during initialization" below)
 - the final report clearly states whether the Editorial content came from the live authenticated LeetCode session or from a fallback source because access was blocked
 
-### Creating `*_Sonnet-4.6.md` during initialization
+### Creating `*_Opus-4.6.md` during initialization
 
-After both the `.c` solution and `*_Editorial.md` are in place, always create `*_Sonnet-4.6.md` as part of initialization. It must contain:
+After both the `.c` solution and `*_Editorial.md` are in place, always create `*_Opus-4.6.md` as part of initialization. It must contain:
 
 1. **Implementation vs. Editorial comparison** — state whether the `.c` solution is the same algorithm as one of the editorial approaches, a variation, or a different approach entirely.
 2. **Which approach is better** — compare along: time complexity, space complexity, interview suitability, and C implementation difficulty. Use a markdown table when helpful.
@@ -123,7 +120,7 @@ When the user explicitly says the goal is "for Google LeetCode interview" or equ
    - explicit comparator / ordering logic
    - complexity tradeoff that can be defended aloud
 5. If the theoretically best editorial approach is too implementation-heavy for a strong interview answer in standalone C, prefer the best balanced approach rather than the most exotic one.
-6. When writing notes into `*_Sonnet-4.6.md`, explicitly state:
+6. When writing notes into `*_Opus-4.6.md`, explicitly state:
    - the baseline approach
    - the recommended Google interview approach
    - why that recommendation is better for interview discussion
@@ -164,7 +161,7 @@ When maintaining markdown notes:
 - `README.md`: short practical explanation of the chosen approach
 - `*_Description.md`: problem statement notes
 - `*_Editorial.md`: structured algorithm explanation and complexity notes
-- `*_Sonnet-4.6.md`: working notes, comparisons, and AI-assisted reasoning for that problem
+- `*_Opus-4.6.md`: working notes, comparisons, and AI-assisted reasoning for that problem
 - `*_Memory.md`: memory address / array index diagrams tracing the algorithm with hypothetical hex addresses
 
 Naming rule for algorithm-explanation notes:
@@ -257,7 +254,7 @@ When the user asks things like "is this the same as your solution?" or "which is
    - implementation difficulty in C
    - readability / teachability for this repo
    - whether the answer depends on the problem constraints
-4. If a `*_Sonnet-4.6.md` file exists and the user wants the result saved, record the comparison there.
+4. If a `*_Opus-4.6.md` file exists and the user wants the result saved, record the comparison there.
 
 ## Recommended commands
 
@@ -278,5 +275,5 @@ For a newer local-test folder with a `Makefile`, use `make` to verify changes.
 - Do not normalize the repo's naming inconsistencies.
 - Do not add a global build system.
 - Do not create broad repo-wide refactors for a single problem.
-- Do not overwrite user-authored `*_Sonnet-4.6.md` notes unless the user asked for that file to be updated.
+- Do not overwrite user-authored `*_Opus-4.6.md` notes unless the user asked for that file to be updated.
 - Do not generate empty companion markdown files just because the template allows them.

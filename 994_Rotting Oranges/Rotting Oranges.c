@@ -1,59 +1,169 @@
 /*
- * LeetCode 994. 腐爛的橙子
+ * ============================================================================
+ * LeetCode 994. Rotting Oranges（腐爛的橘子）
  * 難度：Medium
- * 演算法：多源BFS
- * 時間：O(m*n)，空間：O(m*n)
+ * 演算法：多源 BFS（Multi-source BFS）
+ * 時間複雜度：O(m × n)
+ * 空間複雜度：O(m × n)
+ * ============================================================================
+ *
+ * 【題目】
+ *   給定 m×n 網格，0=空、1=新鮮橘子、2=腐爛橘子。
+ *   每分鐘，與腐爛橘子四方向相鄰的新鮮橘子會腐爛。
+ *   回傳讓所有橘子腐爛所需的最少分鐘，不可能則回傳 -1。
+ *
+ * 【核心思路】
+ *   把所有初始腐爛橘子同時加入佇列（多源 BFS），
+ *   BFS 的層數 = 經過的分鐘數。
+ *
+ * 【演算法步驟 — 以 Example 1 為例】
+ *
+ *   grid = [[2,1,1],
+ *           [1,1,0],
+ *           [0,1,1]]
+ *
+ *   Step 0 — 初始化：
+ *     掃描整個網格，把所有 2 加入佇列，並計算 fresh_count。
+ *
+ *     ┌───┬───┬───┐
+ *     │ 2 │ 1 │ 1 │   (0,0) 是腐爛 → 入佇列
+ *     ├───┼───┼───┤
+ *     │ 1 │ 1 │ 0 │   fresh_count = 6
+ *     ├───┼───┼───┤
+ *     │ 0 │ 1 │ 1 │
+ *     └───┴───┴───┘
+ *     佇列: [(0,0)]
+ *     fresh_count = 6, minutes = 0
+ *
+ *   Step 1 — 第 1 分鐘（處理佇列中 1 個元素）：
+ *     取出 (0,0)，檢查四鄰居：
+ *       上(-1,0) 越界、左(0,-1) 越界
+ *       下(1,0)=1 → 腐爛！  右(0,1)=1 → 腐爛！
+ *
+ *     ┌───┬───┬───┐
+ *     │ 2 │[2]│ 1 │   [2] = 本輪剛腐爛
+ *     ├───┼───┼───┤
+ *     │[2]│ 1 │ 0 │   fresh_count = 4
+ *     ├───┼───┼───┤
+ *     │ 0 │ 1 │ 1 │
+ *     └───┴───┴───┘
+ *     佇列: [(1,0), (0,1)]
+ *     minutes = 1
+ *
+ *   Step 2 — 第 2 分鐘（處理佇列中 2 個元素）：
+ *     取出 (1,0)：下(2,0)=0 跳過、右(1,1)=1 → 腐爛！
+ *     取出 (0,1)：右(0,2)=1 → 腐爛！  下(1,1) 已被標記
+ *
+ *     ┌───┬───┬───┐
+ *     │ 2 │ 2 │[2]│
+ *     ├───┼───┼───┤
+ *     │ 2 │[2]│ 0 │   fresh_count = 2
+ *     ├───┼───┼───┤
+ *     │ 0 │ 1 │ 1 │
+ *     └───┴───┴───┘
+ *     佇列: [(1,1), (0,2)]
+ *     minutes = 2
+ *
+ *   Step 3 — 第 3 分鐘：
+ *     取出 (1,1)：下(2,1)=1 → 腐爛！
+ *     取出 (0,2)：無新鮮鄰居
+ *
+ *     ┌───┬───┬───┐
+ *     │ 2 │ 2 │ 2 │
+ *     ├───┼───┼───┤
+ *     │ 2 │ 2 │ 0 │   fresh_count = 1
+ *     ├───┼───┼───┤
+ *     │ 0 │[2]│ 1 │
+ *     └───┴───┴───┘
+ *     佇列: [(2,1)]
+ *     minutes = 3
+ *
+ *   Step 4 — 第 4 分鐘：
+ *     取出 (2,1)：右(2,2)=1 → 腐爛！
+ *
+ *     ┌───┬───┬───┐
+ *     │ 2 │ 2 │ 2 │
+ *     ├───┼───┼───┤
+ *     │ 2 │ 2 │ 0 │   fresh_count = 0 ✓
+ *     ├───┼───┼───┤
+ *     │ 0 │ 2 │[2]│
+ *     └───┴───┴───┘
+ *     佇列: []（空）
+ *     fresh_count = 0 → 回傳 minutes = 4
+ *
+ * 【方向陣列編碼】
+ *   directions[] = {-1,0, 1,0, 0,-1, 0,1}
+ *   每兩個一組：(dr, dc) 分別代表上、下、左、右
+ *   用 d=0,2,4,6 步進取用，避免額外的 struct 或 2D 陣列
+ *
+ * 【minutes 遞增時機】
+ *   只在處理完一層後、且 fresh_count > 0 時才 +1。
+ *   這樣避免了 off-by-one：最後一層把 fresh 降到 0 時不多算。
+ *
+ * ============================================================================
  */
 
 #include <stdlib.h>
 #include <string.h>
 
 int orangesRotting(int** grid, int gridSize, int* gridColSize) {
-    int rows = gridSize;
-    int cols = gridColSize[0];
-    int minutes = 0;
-    int fresh_count = 0;
+    int rows = gridSize;            /* 網格列數 */
+    int cols = gridColSize[0];      /* 網格行數 */
+    int minutes = 0;                /* 經過的分鐘數（BFS 層數） */
+    int fresh_count = 0;            /* 剩餘新鮮橘子數 */
 
+    /* 佇列：用一維陣列模擬，每個元素佔 2 個 int（row, col） */
+    /* 最大容量 = rows * cols 個格子 × 2（row + col）           */
     int* queue = (int*)malloc(rows * cols * 2 * sizeof(int));
-    int front = 0, rear = 0;
+    int front = 0, rear = 0;       /* front = 讀取指標, rear = 寫入指標 */
 
-    /* 初始化：找出所有腐爛的橙子和新鮮橙子數量 */
+    /* ── 第一輪掃描：找出所有腐爛橘子並計算新鮮數 ── */
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             if (grid[i][j] == 2) {
-                queue[rear++] = i;
-                queue[rear++] = j;
+                /* 腐爛橘子 → 加入 BFS 初始前沿 */
+                queue[rear++] = i;  /* 存 row */
+                queue[rear++] = j;  /* 存 col */
             } else if (grid[i][j] == 1) {
-                fresh_count++;
+                fresh_count++;      /* 計數新鮮橘子 */
             }
         }
     }
 
+    /* 方向陣列：上(-1,0)、下(1,0)、左(0,-1)、右(0,1) */
     int directions[] = {-1, 0, 1, 0, 0, -1, 0, 1};
 
+    /* ── BFS 主迴圈：逐層擴散腐爛 ── */
     while (fresh_count > 0 && front < rear) {
+        /* 當前層的元素數（佇列中每個格子佔 2 個 int） */
         int size = (rear - front) / 2;
 
         for (int i = 0; i < size; i++) {
-            int r = queue[front++];
-            int c = queue[front++];
+            int r = queue[front++]; /* 取出當前格子的 row */
+            int c = queue[front++]; /* 取出當前格子的 col */
 
+            /* 檢查四個方向 */
             for (int d = 0; d < 8; d += 2) {
-                int nr = r + directions[d];
-                int nc = c + directions[d + 1];
+                int nr = r + directions[d];     /* 鄰居的 row */
+                int nc = c + directions[d + 1]; /* 鄰居的 col */
 
-                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] == 1) {
-                    grid[nr][nc] = 2;
-                    fresh_count--;
-                    queue[rear++] = nr;
+                /* 邊界檢查 + 是否為新鮮橘子 */
+                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols
+                    && grid[nr][nc] == 1) {
+                    grid[nr][nc] = 2;   /* 標記為腐爛（避免重複入佇列） */
+                    fresh_count--;      /* 新鮮數減一 */
+                    queue[rear++] = nr; /* 新腐爛的橘子入佇列 */
                     queue[rear++] = nc;
                 }
             }
         }
 
+        /* 本層處理完畢：若仍有新鮮橘子，代表需要再一分鐘 */
         if (fresh_count > 0) minutes++;
     }
 
-    free(queue);
+    free(queue); /* 釋放佇列記憶體 */
+
+    /* fresh_count == 0 表示所有新鮮橘子都已腐爛；否則回傳 -1 */
     return fresh_count == 0 ? minutes : -1;
 }
