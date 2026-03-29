@@ -1,19 +1,51 @@
-//Heap/Priority Queue: https://leetcode.com/problems/kth-largest-element-in-an-array/description/?envType=study-plan-v2&envId=leetcode-75
 /*
-這份是 Quickselect，平均時間複雜度 O(n)、空間複雜度 O(1)，比直接排序更符合這題重點。核心函式是：
-int findKthLargest(int* nums, int numsSize, int k)
-
-swap 怎麼交換、partition 怎麼把大於 pivot 的值放左邊、findKthLargest 怎麼縮小搜尋區間直到找到第 k 大元素.
-這份現在包含 C 程式碼、Quickselect 核心概念、partition 怎麼運作、target = k - 1 的原因、範例流程與複雜度
-*/
-
-/*
-內容現在有：
-partition 的逐步陣列變化圖
-pivot 怎麼移動到正確位置
-為什麼可以往左半邊或右半邊縮小範圍
-整體 Quickselect 流程圖
-*/
+ * 215. Kth Largest Element in an Array
+ * 難度：Medium
+ * 分類：Heap / Priority Queue, Sorting, Quickselect
+ *
+ * 時間複雜度：O(n) 平均，O(n^2) 最壞
+ * 空間複雜度：O(1)（原地 partition，無遞迴）
+ *
+ * 演算法：Quickselect（Hoare's Selection Algorithm）
+ *
+ * ── 核心概念 ──
+ * 不需要完整排序，只要找出「如果由大到小排序後，索引 k-1 的元素」。
+ * 每次隨機選 pivot → partition 把 > pivot 的放左邊 → 看 pivot 落點
+ * 決定往左半邊或右半邊繼續搜尋，直到 pivot 剛好落在 target = k-1。
+ *
+ * ── 範例走一次（Example 1）──
+ * nums = [3, 2, 1, 5, 6, 4], k = 2, target = 1
+ *
+ * Round 1: 假設 pivot = 4 (index 5)
+ *   partition 前: [3, 2, 1, 5, 6, 4]
+ *                  i→→→→→→→→→→→→→→→→
+ *   掃描時 5>4 → swap(store=0, i=3) → [5, 2, 1, 3, 6, 4] store=1
+ *          6>4 → swap(store=1, i=4) → [5, 6, 1, 3, 2, 4] store=2
+ *   放回 pivot → swap(store=2, right=5) → [5, 6, 4, 3, 2, 1]
+ *                                           ^^^  ^  ~~~~~~~~~
+ *                                           >4  pivot  <=4
+ *   newPivotIndex = 2 > target(1) → 往左找 [5, 6]
+ *
+ * Round 2: 範圍 [0..1], 假設 pivot = 5
+ *   partition → [6, 5]
+ *   newPivotIndex = 1 == target → 回傳 nums[1] = 5 ✓
+ *
+ * ── 整體流程圖 ──
+ *
+ *   [3, 2, 1, 5, 6, 4]   target=1
+ *           │
+ *      pivot=4, partition
+ *           │
+ *   [5, 6, 4, 3, 2, 1]   newPivot=2 > 1 → 往左
+ *           │
+ *       [5, 6]            left=0, right=1
+ *           │
+ *      pivot=5, partition
+ *           │
+ *       [6, 5]            newPivot=1 == target
+ *           │
+ *        ans=5
+ */
 
 // 引入 rand() 所需的標頭檔。
 #include <stdlib.h>
