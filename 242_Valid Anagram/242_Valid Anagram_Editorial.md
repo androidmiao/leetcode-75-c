@@ -1,23 +1,71 @@
 # 242. Valid Anagram - Editorial
 
-## Approach 1: Character Frequency Count (Recommended)
+## Approach 1: Sorting
 
 ### Algorithm
 
-Count the frequency of each character in both strings. Two strings are anagrams if and only if they have the same character frequencies.
+An anagram is produced by rearranging the letters of one string into another. Therefore, if `t` is an anagram of `s`, sorting both strings will result in two identical strings. Furthermore, if `s` and `t` have different lengths, `t` cannot be an anagram of `s` and we can return early.
 
 **Steps:**
-1. Check if the strings have the same length (anagrams must have equal length)
-2. Create a frequency array for 26 lowercase English letters
-3. Traverse string `s` and increment the frequency count for each character
-4. Traverse string `t` and decrement the frequency count for each character
-5. Check if all frequency counts are zero
-6. If all counts are zero, return true; otherwise return false
+1. If lengths differ, return false immediately
+2. Convert both strings to character arrays
+3. Sort both arrays
+4. Compare the sorted arrays — if equal, return true; otherwise return false
 
 ### Complexity Analysis
 
-- **Time Complexity**: O(n), where n is the length of the strings. We traverse both strings once and check the frequency array once.
-- **Space Complexity**: O(1), as the frequency array has a fixed size of 26.
+- **Time Complexity**: O(n log n), dominated by the sorting step. Comparing two sorted strings costs O(n).
+- **Space Complexity**: O(1) if using heapsort in-place. In Java, `toCharArray()` makes a copy costing O(n) extra space, but this is language-dependent. In C, `qsort` sorts in-place on a duplicated buffer — O(n) for the duplicate.
+
+### Code Concept (C)
+
+```c
+int cmp(const void *a, const void *b) {
+    return *(char *)a - *(char *)b;
+}
+
+bool isAnagram(char *s, char *t) {
+    int sn = strlen(s), tn = strlen(t);
+    if (sn != tn) return false;
+
+    char *ss = strdup(s);
+    char *tt = strdup(t);
+    qsort(ss, sn, sizeof(char), cmp);
+    qsort(tt, tn, sizeof(char), cmp);
+    bool res = strcmp(ss, tt) == 0;
+    free(ss);
+    free(tt);
+    return res;
+}
+```
+
+## Approach 2: Frequency Counter (Recommended)
+
+### Algorithm
+
+Count occurrences of each letter in the two strings and compare them. Since both `s` and `t` contain only lowercase letters `a`–`z`, a simple array of size 26 will suffice. We can increment the count for each letter in `s` and decrement for each letter in `t`, then check whether every count is zero.
+
+**Variant A — single loop (same-length only):**
+```
+for i in 0..n-1:
+    counter[s[i] - 'a']++
+    counter[t[i] - 'a']--
+```
+
+**Variant B — two separate loops with early exit:**
+Increment counts for `s` first, then decrement for `t`. If at any point a count drops below zero, `t` contains an extra letter not in `s` — return false immediately.
+
+**Steps (Variant B):**
+1. Check if `len(s) != len(t)` → return false
+2. Create `freq[26] = {0}`
+3. For each character in `s`: `freq[c - 'a']++`
+4. For each character in `t`: `freq[c - 'a']--`; if `freq[c - 'a'] < 0` → return false
+5. Return true
+
+### Complexity Analysis
+
+- **Time Complexity**: O(n). Accessing the counter table is O(1) per character.
+- **Space Complexity**: O(1). The counter table has fixed size 26, constant regardless of n.
 
 ### Pseudocode
 
@@ -40,127 +88,64 @@ for i in 0 to 25:
 return true
 ```
 
-## Approach 2: Sorting
+## Follow Up: Unicode Characters
 
-### Algorithm
-
-Sort both strings. If they are anagrams, the sorted strings will be identical.
-
-**Steps:**
-1. Convert both strings to character arrays
-2. Sort both arrays
-3. Compare the sorted arrays
-4. If they are equal, return true; otherwise return false
-
-### Complexity Analysis
-
-- **Time Complexity**: O(n log n), dominated by the sorting operation.
-- **Space Complexity**: O(n) for the sorted arrays (or O(log n) if we count only the recursion stack for in-place sorting).
-
-### Code Concept
-
-```c
-char* sorted_s = strdup(s);
-char* sorted_t = strdup(t);
-
-qsort(sorted_s, strlen(sorted_s), sizeof(char), compare);
-qsort(sorted_t, strlen(sorted_t), sizeof(char), compare);
-
-bool result = strcmp(sorted_s, sorted_t) == 0;
-
-free(sorted_s);
-free(sorted_t);
-return result;
-```
-
-## Approach 3: Hash Map (Alternative)
-
-### Algorithm
-
-Use a hash map (hash table) to count character frequencies.
-
-**Steps:**
-1. Check if lengths are equal
-2. Create a hash map
-3. For each character in `s`, increment its count
-4. For each character in `t`, decrement its count
-5. Check if all counts are zero
-
-### Complexity Analysis
-
-- **Time Complexity**: O(n), same as frequency count approach.
-- **Space Complexity**: O(k), where k is the number of distinct characters (at most 26 for lowercase English).
+Use a hash table instead of a fixed-size counter. A fixed-size array covering the entire Unicode range (over 1 million code points) would waste too much memory. A hash table adapts to any range of characters dynamically.
 
 ## Comparison
 
 | Approach | Time | Space | Pros | Cons |
 |----------|------|-------|------|------|
-| Frequency Count | O(n) | O(1) | Simple, optimal | Need 26-size array |
-| Sorting | O(n log n) | O(n) | No extra data structure | Slower |
-| Hash Map | O(n) | O(k) | Flexible for any charset | Extra overhead |
+| Sorting | O(n log n) | O(1)–O(n) | No extra data structure | Slower |
+| Frequency Counter | O(n) | O(1) | Simple, optimal | Fixed to known charset |
+| Hash Map (Unicode) | O(n) | O(k) | Flexible for any charset | Hash overhead |
 
 ---
 
-# 242. 有效的异位词 - 编辑社论
+# 242. 有效的異位詞 — 題解
 
-## 方法1: 字符频率计数 (推荐)
+## 方法一：排序
 
-### 算法
+### 演算法
 
-计算两个字符串中每个字符的频率。两个字符串是异位词当且仅当它们具有相同的字符频率。
+異位詞是透過重新排列一個字串的字母而得到另一個字串。因此，若 `t` 是 `s` 的異位詞，將兩個字串排序後必定產生相同的結果。此外，若 `s` 和 `t` 的長度不同，`t` 不可能是 `s` 的異位詞，可以提前返回。
 
-**步骤：**
-1. 检查字符串的长度是否相同(异位词必须等长)
-2. 创建26个小写英文字母的频率数组
-3. 遍历字符串 `s`，增加每个字符的频率计数
-4. 遍历字符串 `t`，减少每个字符的频率计数
-5. 检查所有频率计数是否都为零
-6. 如果所有计数都为零，返回 true；否则返回 false
+**步驟：**
+1. 若長度不同，立即回傳 false
+2. 將兩個字串轉為字元陣列
+3. 分別排序
+4. 比較排序後的陣列——若相同則回傳 true，否則 false
 
-### 复杂度分析
+### 複雜度分析
 
-- **时间复杂度**: O(n)，其中 n 是字符串长度。遍历两个字符串一次，检查频率数组一次。
-- **空间复杂度**: O(1)，频率数组的大小固定为26。
+- **時間複雜度**：O(n log n)，由排序步驟主導。比較兩個已排序字串需 O(n)。
+- **空間複雜度**：若使用堆積排序可達 O(1)。在 C 中需先複製字串再排序，故為 O(n)。
 
-## 方法2: 排序
+## 方法二：頻率計數（推薦）
 
-### 算法
+### 演算法
 
-对两个字符串进行排序。如果它们是异位词，排序后的字符串将相同。
+統計兩個字串中每個字母的出現次數並加以比較。由於 `s` 和 `t` 只包含小寫字母 `a`–`z`，使用大小為 26 的簡單陣列即可。對 `s` 中每個字母遞增計數、對 `t` 中每個字母遞減計數，最後檢查所有計數是否皆為零。
 
-**步骤：**
-1. 将两个字符串转换为字符数组
-2. 对两个数组进行排序
-3. 比较排序后的数组
-4. 如果相等，返回 true；否则返回 false
+**變體 A — 單迴圈（僅適用等長）：**
+在同一迴圈中同時遞增 `s` 的計數與遞減 `t` 的計數。
 
-### 复杂度分析
+**變體 B — 兩個獨立迴圈加提前退出：**
+先遞增 `s` 的計數，再遞減 `t` 的計數。若某個計數降至零以下，表示 `t` 含有 `s` 中不存在的額外字母，可立即回傳 false。
 
-- **时间复杂度**: O(n log n)，由排序操作主导。
-- **空间复杂度**: O(n) 用于排序数组(或 O(log n) 如果只计递归栈)。
+### 複雜度分析
 
-## 方法3: 哈希表
+- **時間複雜度**：O(n)。存取計數陣列為每字元 O(1)。
+- **空間複雜度**：O(1)。計數陣列大小固定為 26，不隨 n 變化。
 
-### 算法
+## 進階：Unicode 字元
 
-使用哈希表计数字符频率。
+使用雜湊表取代固定大小的計數陣列。Unicode 字元範圍超過一百萬個碼位，使用固定大小陣列將浪費大量記憶體。雜湊表可動態適應任何字元範圍。
 
-**步骤：**
-1. 检查长度是否相等
-2. 创建哈希表
-3. 对于 `s` 中的每个字符，增加其计数
-4. 对于 `t` 中的每个字符，减少其计数
-5. 检查所有计数是否都为零
+## 比較
 
-### 复杂度分析
-
-- **时间复杂度**: O(n)，与频率计数方法相同。
-- **空间复杂度**: O(k)，其中 k 是不同字符的个数(最多26个小写英文字母)。
-
-## 比较
-
-| 方法 | 时间 | 空间 | 优点 | 缺点 |
+| 方法 | 時間 | 空間 | 優點 | 缺點 |
 |------|------|------|------|------|
-| 字符频率计数 | O(n) | O(1) | 简单，最优 | 需要26元素数组 |
-| 排序 | O(n log n) | O(n) | 无额外数据结构 | 较慢 |
-| 哈希表 | O(n) | O(k) | 灵活适应任何字符集 | 额外开销 |
+| 排序 | O(n log n) | O(1)–O(n) | 無額外資料結構 | 較慢 |
+| 頻率計數 | O(n) | O(1) | 簡單、最優 | 限定已知字元集 |
+| 雜湊表（Unicode） | O(n) | O(k) | 適應任意字元集 | 雜湊額外開銷 |
