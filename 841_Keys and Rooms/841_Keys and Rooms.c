@@ -1,31 +1,60 @@
-//Graphs - DFS: https://leetcode.com/problems/keys-and-rooms/description/?envType=study-plan-v2&envId=leetcode-75
-
 /*
-核心做法是 DFS：
-從 room 0 開始
-用 stack 儲存接下來可進入的房間
-用 visited 記錄哪些房間已經到過
-最後檢查拜訪過的房間數是否等於 roomsSize
-題目要判斷：從 0 號房間出發，能不能拿著鑰匙把所有房間都走到。
-
-這裡使用 DFS（Depth-First Search，深度優先搜尋）的概念。
-但為了避免使用遞迴，我們自己用 stack 來模擬 DFS。
-
-整體流程：
-1. 先把 0 號房間放進 stack，表示從這裡開始探索。
-2. 每次從 stack 取出一個房間。
-3. 檢查該房間內所有鑰匙，看看能不能進入新的房間。
-4. 如果某個房間還沒拜訪過，就標記為已拜訪，並放進 stack。
-5. 最後只要拜訪數量等於總房間數，就代表所有房間都能到達。
-*/
-
-/*
-重點是這題用「非遞迴 DFS」處理：
-visited 記錄房間是否拜訪過
-stack 模擬 DFS 的堆疊
-visitedCount 統計已拜訪房間數
-最後回傳 visitedCount == roomsSize
-*/
+ * 841. Keys and Rooms
+ * 難度：Medium
+ * 分類：Graphs — DFS
+ * 連結：https://leetcode.com/problems/keys-and-rooms/
+ *
+ * 時間複雜度：O(N + E)  N = 房間數，E = 所有鑰匙總數
+ * 空間複雜度：O(N)       visited 陣列 + stack 各最多 N
+ *
+ * ===== 演算法概述 =====
+ *
+ * 核心做法：非遞迴 DFS（用自建 stack 模擬）
+ *   1. 從 room 0 出發，將其放入 stack 並標記 visited
+ *   2. 每次從 stack 取出一個房間 → 走訪其中所有鑰匙
+ *   3. 遇到尚未拜訪的房間 → 標記 + 計數 + 推入 stack
+ *   4. stack 清空後，visitedCount == roomsSize 即可全部到達
+ *
+ * ===== 範例 1 走訪圖解：rooms = [[1],[2],[3],[]] =====
+ *
+ *   有向圖（鄰接表 = rooms）：
+ *
+ *       ┌─────┐  key 1  ┌─────┐  key 2  ┌─────┐  key 3  ┌─────┐
+ *       │  0  │───────▶│  1  │───────▶│  2  │───────▶│  3  │
+ *       └─────┘         └─────┘         └─────┘         └─────┘
+ *
+ *   DFS 過程（stack 變化）：
+ *
+ *   步驟  取出  stack(後)  visited           count
+ *   ───── ───── ─────────  ──────────────── ─────
+ *   init  -     [0]        [T F F F]          1
+ *    1    0     [1]        [T T F F]          2
+ *    2    1     [2]        [T T T F]          3
+ *    3    2     [3]        [T T T T]          4
+ *    4    3     []         [T T T T]          4
+ *
+ *   count(4) == roomsSize(4) → return true
+ *
+ * ===== 範例 2 走訪圖解：rooms = [[1,3],[3,0,1],[2],[0]] =====
+ *
+ *   有向圖：
+ *
+ *       ┌─────┐  key 1  ┌─────┐
+ *       │  0  │───────▶│  1  │
+ *       │     │◀───────│     │
+ *       └──┬──┘  key 0  └──┬──┘
+ *     key 3│    key 3      │key 3
+ *          ▼               ▼
+ *       ┌─────┐  key 0  ┌ ─ ─ ┐
+ *       │  3  │───────▶  │  0  │  (已拜訪，不再入 stack)
+ *       └─────┘         └ ─ ─ ┘
+ *
+ *       ┌─────┐
+ *       │  2  │  ← 鑰匙 2 只存在 room 2 裡，永遠拿不到
+ *       └─────┘
+ *
+ *   count(3) != roomsSize(4) → return false
+ */
 
 // 提供 bool、true、false
 #include <stdbool.h>
