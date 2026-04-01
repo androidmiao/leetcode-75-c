@@ -1,6 +1,17 @@
-//Array/String: https://leetcode.com/problems/merge-strings-alternately/?envType=study-plan-v2&envId=leetcode-75
+/*
+ * 1768. Merge Strings Alternately
+ * 難度：Easy
+ * 分類：Array/String
+ * 連結：https://leetcode.com/problems/merge-strings-alternately/?envType=study-plan-v2&envId=leetcode-75
+ *
+ * 時間複雜度：O(n1 + n2)  （每個字元只處理一次）
+ * 空間複雜度：O(n1 + n2)  （輸出字串大小）
+ *
+ * 演算法：雙指標（Two Pointers）
+ * 提示：Use two pointers, one pointer for each string.
+ *       Alternately choose the character from each pointer, and move the pointer upwards.
+ */
 //這支程式的功能是把兩個字串「交錯合併」，例如 abc 和 pqr 變成 apbqcr
-//Hint: Use two pointers, one pointer for each string. Alternately choose the character from each pointer, and move the pointer upwards.
 
 /* 
 圖解流程:
@@ -71,11 +82,7 @@ res  : a p b q c r s
 */
 
 
-/* 
-複雜度:
-時間：O(n1 + n2)（每個字元只處理一次）
-空間：O(n1 + n2)（輸出字串大小）
-*/
+/* （複雜度已列於檔頭） */
 
 /*
 以下是「記憶體位址/陣列索引版」圖解（以 `word1="abc"`, `word2="pqrs"`）：
