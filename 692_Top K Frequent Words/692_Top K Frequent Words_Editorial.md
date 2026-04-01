@@ -2,6 +2,8 @@
 
 This note is a high-fidelity rewrite of the live LeetCode editorial's Solution section, arranged as bilingual study material for this repo.
 
+> Synced from live authenticated LeetCode session (2026-04-01). Editorial content confirmed accessible; all 4 approaches verified against the live page.
+
 ---
 
 ## English Version

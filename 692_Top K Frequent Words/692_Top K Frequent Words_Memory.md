@@ -1,5 +1,7 @@
 # 692. Top K Frequent Words — 記憶體配置與演算法追蹤
 
+> Last verified (2026-04-01).
+
 以下用假設的 hex 位址，逐步追蹤 hash table 頻率統計 + min heap top-k 兩個階段的記憶體變化。
 
 ---

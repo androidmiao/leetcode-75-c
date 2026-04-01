@@ -2,15 +2,17 @@
 
 This note is a high-fidelity rewrite of the live LeetCode problem page, arranged as bilingual study material for this repo.
 
+> Synced from live authenticated LeetCode session (2026-04-01).
+
 ---
 
 ## English Version
 
 ### Problem Statement
 
-You are given an array of strings `words` and an integer `k`. Return the `k` most frequent strings.
+Given an array of strings `words` and an integer `k`, return the `k` most frequent strings.
 
-The result must be ordered from higher frequency to lower frequency. If two strings have the same frequency, the lexicographically smaller string must come first.
+Return the answer **sorted by the frequency** from highest to lowest. Sort the words with the same frequency by their **lexicographical order**.
 
 ### Example 1
 
@@ -51,7 +53,25 @@ So the top 4 most frequent strings are returned in the required order.
 
 ### Follow-up
 
-Try to solve it in `O(n log k)` time and `O(n)` extra space.
+Could you solve it in `O(n log(k))` time and `O(n)` extra space?
+
+### Topics
+
+Array, Hash Table, String, Trie, Sorting, Heap (Priority Queue), Bucket Sort, Counting
+
+### Companies (as of 2026-04-01)
+
+- **0–3 months**: Amazon, Box, Bloomberg
+- **0–6 months**: Google, PayPal
+- **6 months ago**: Meta, Uber, Oracle, Robinhood, Microsoft, Adobe, ServiceNow, Salesforce, Redfin, TikTok
+
+### Similar Questions
+
+- 347 Top K Frequent Elements (Medium)
+- 973 K Closest Points to Origin (Medium)
+- 1772 Sort Features by Popularity (Medium)
+- 2284 Sender With Largest Word Count (Medium)
+- 2341 Maximum Number of Pairs in Array (Easy)
 
 ---
 
@@ -61,7 +81,7 @@ Try to solve it in `O(n log k)` time and `O(n)` extra space.
 
 給定一個字串陣列 `words` 和一個整數 `k`，請回傳出現次數最高的前 `k` 個單字。
 
-答案必須依照頻率由高到低排列。如果兩個單字出現次數相同，則字典序較小的單字必須排在前面。
+答案必須依照**頻率**由高到低排列。如果兩個單字出現次數相同，則依**字典序**排列，較小的排在前面。
 
 ### 範例 1
 
@@ -102,4 +122,22 @@ Try to solve it in `O(n log k)` time and `O(n)` extra space.
 
 ### 進階要求
 
-請嘗試在 `O(n log k)` 時間與 `O(n)` 額外空間內完成。
+你能在 `O(n log(k))` 時間與 `O(n)` 額外空間內完成嗎？
+
+### 標籤
+
+Array, Hash Table, String, Trie, Sorting, Heap (Priority Queue), Bucket Sort, Counting
+
+### 公司（截至 2026-04-01）
+
+- **近 3 個月**：Amazon, Box, Bloomberg
+- **近 6 個月**：Google, PayPal
+- **6 個月以前**：Meta, Uber, Oracle, Robinhood, Microsoft, Adobe, ServiceNow, Salesforce, Redfin, TikTok
+
+### 相似題目
+
+- 347 Top K Frequent Elements（Medium）
+- 973 K Closest Points to Origin（Medium）
+- 1772 Sort Features by Popularity（Medium）
+- 2284 Sender With Largest Word Count（Medium）
+- 2341 Maximum Number of Pairs in Array（Easy）

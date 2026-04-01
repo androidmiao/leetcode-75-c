@@ -1,5 +1,7 @@
 # 692. Top K Frequent Words — Linux Kernel 連結
 
+> Last verified (2026-04-01).
+
 本題用到兩個核心資料結構：**hash table**（頻率統計）和 **min heap**（維護 top-k）。Linux kernel 對這兩者都有生產等級的實作，以下對照分析。
 
 ---

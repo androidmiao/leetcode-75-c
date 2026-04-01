@@ -1,5 +1,7 @@
 # 692. Top K Frequent Words — Opus-4.6 Implementation vs. Editorial Comparison
 
+> Last verified against live LeetCode Editorial (2026-04-01). No content changes detected.
+
 ---
 
 ## English Version
