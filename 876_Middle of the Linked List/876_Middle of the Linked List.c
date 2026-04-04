@@ -1,12 +1,10 @@
 // https://leetcode.com/problems/middle-of-the-linked-list/description/
 
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     struct ListNode *next;
- * };
- */
+// Definition for singly-linked list.
+ struct ListNode {
+     int val;
+     struct ListNode *next;
+ };
 
 /*
 解題思路：快慢指標（Fast & Slow Pointer）

@@ -53,13 +53,12 @@
  * ─────────────────────────────────────────────────────────────────
  */
 
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     struct ListNode *next;
- * };
- */
+// Definition for singly-linked list.
+ struct ListNode {
+     int val;
+     struct ListNode *next;
+ };
+ 
 struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *headB) {
     /* 任一串列為空則必無交叉 */
     if (!headA || !headB) return NULL;
