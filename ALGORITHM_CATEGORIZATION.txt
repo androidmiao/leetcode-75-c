@@ -1,0 +1,151 @@
+================================================================================
+LEETCODE 75 - C Language Solutions: Algorithm Categorization
+================================================================================
+
+PROBLEM_NUMBER | PROBLEM_NAME | DIFFICULTY | PRIMARY_PATTERN | SECONDARY_PATTERN(S) | KEY_TECHNIQUE
+================================================================================
+
+1 | Two Sum | Easy | Hash Table / Hash Map | Two Pointers | Complement lookup
+3 | Longest Substring Without Repeating Characters | Medium | Sliding Window | Hash Table | Fixed window with char frequency
+11 | Container With Most Water | Medium | Two Pointers | Greedy | Left-right pointer convergence
+17 | Letter Combinations of a Phone Number | Medium | Backtracking | String Manipulation | Recursive path exploration
+19 | Remove Nth Node From End of List | Medium | Linked List Operations | Two Pointers | Fast/slow pointer technique
+20 | Valid Parentheses | Easy | Stack / Queue | String Manipulation | Stack-based matching
+21 | Merge Two Sorted Lists | Easy | Linked List Operations | Two Pointers | Compare and merge
+23 | Merge k Sorted Lists | Hard | Linked List Operations | Divide and Conquer | Recursive pairwise merging
+33 | Search in Rotated Sorted Array | Medium | Binary Search | Array Manipulation | Modified binary search
+35 | Search Insert Position | Easy | Binary Search | Array Manipulation | Standard binary search
+49 | Group Anagrams | Medium | Hash Table / Hash Map | Sorting | Sort keys + grouping
+53 | Maximum Subarray | Medium | Dynamic Programming | Greedy | Kadane's algorithm
+76 | Minimum Window Substring | Hard | Sliding Window | Hash Table | Variable-size window, two pointers
+84 | Largest Rectangle in Histogram | Hard | Monotonic Stack | Stack / Queue | Stack with indices for boundaries
+104 | Maximum Depth of Binary Tree | Easy | Tree (Binary Tree) | DFS / Graph | Recursive depth calculation
+121 | Best Time to Buy and Sell Stock | Easy | Greedy | Array Manipulation | Min price tracking
+122 | Best Time to Buy and Sell Stock II | Medium | Greedy | Dynamic Programming | Peak-valley cumulative sum
+133 | Clone Graph | Medium | BFS / DFS / Graph | Hash Table | DFS with visited mapping
+141 | Linked List Cycle | Easy | Linked List Operations | Two Pointers | Fast/slow pointer detection
+146 | LRU Cache | Medium | Hash Table / Hash Map | Linked List Operations | Doubly-linked list + hash map
+151 | Reverse Words in a String | Medium | String Manipulation | Two Pointers | In-place character reversal
+152 | Maximum Product Subarray | Medium | Dynamic Programming | Array Manipulation | Track max and min products
+155 | Min Stack | Medium | Stack / Queue | Design Pattern | Auxiliary stack for min tracking
+160 | Intersection of Two Linked Lists | Easy | Linked List Operations | Two Pointers | Cross-path traversal
+162 | Find Peak Element | Medium | Binary Search | Array Manipulation | Divide and conquer search
+199 | Binary Tree Right Side View | Medium | Tree (Binary Tree) | BFS / Graph | Level-order traversal
+200 | Number of Islands | Medium | BFS / DFS / Graph | Array Manipulation | Connected component counting
+206 | Reverse Linked List | Easy | Linked List Operations | Two Pointers | Iterative pointer reversal
+207 | Course Schedule | Medium | BFS / DFS / Graph | Topological Sort | Cycle detection with three colors
+210 | Course Schedule II | Medium | BFS / DFS / Graph | Topological Sort | DFS post-order topo sorting
+215 | Kth Largest Element in an Array | Medium | Heap / Priority Queue | Quickselect | Partition-based selection
+217 | Contains Duplicate | Easy | Hash Table / Hash Map | Sorting | Sort and adjacent check
+219 | Contains Duplicate II | Easy | Sliding Window | Hash Table | Fixed-size window with set
+232 | Implement Queue using Stacks | Easy | Stack / Queue | Design Pattern | Two-stack lazy reversal
+234 | Palindrome Linked List | Easy | Linked List Operations | Two Pointers | Fast/slow find + reverse
+238 | Product of Array Except Self | Medium | Prefix Sum | Array Manipulation | Left and right cumulative products
+239 | Sliding Window Maximum | Hard | Monotonic Stack | Sliding Window | Deque with decreasing indices
+242 | Valid Anagram | Easy | Hash Table / Hash Map | Sorting | Character frequency counting
+283 | Move Zeroes | Easy | Two Pointers | Array Manipulation | In-place two-pointer swap
+287 | Find the Duplicate Number | Medium | Two Pointers | Floyd's Cycle Detection | Tortoise and hare algorithm
+295 | Find Median from Data Stream | Hard | Heap / Priority Queue | Design Pattern | Two heaps maintenance
+328 | Odd Even Linked List | Medium | Linked List Operations | Two Pointers | Separate odd/even chains
+334 | Increasing Triplet Subsequence | Medium | Greedy | Array Manipulation | Maintain min and second-min
+345 | Reverse Vowels of a String | Easy | Two Pointers | String Manipulation | Bidirectional pointer swap
+347 | Top K Frequent Elements | Medium | Heap / Priority Queue | Hash Table | Bucket sort by frequency
+374 | Guess Number Higher or Lower | Easy | Binary Search | Array Manipulation | Standard binary search
+392 | Is Subsequence | Easy | Two Pointers | String Manipulation | Sequential matching scan
+424 | Longest Repeating Character Replacement | Medium | Sliding Window | Hash Table | Variable window with char count
+480 | Sliding Window Median | Hard | Heap / Priority Queue | Sliding Window | Two heaps with lazy deletion
+567 | Permutation in String | Medium | Sliding Window | Hash Table | Fixed-size window frequency match
+605 | Can Place Flowers | Easy | Greedy | Array Manipulation | Greedy local decisions
+643 | Maximum Average Subarray I | Easy | Sliding Window | Array Manipulation | Fixed-size window sum
+692 | Top K Frequent Words | Medium | Heap / Priority Queue | Hash Table | Min heap for k most frequent
+700 | Search in a Binary Search Tree | Easy | Tree (Binary Tree) | Binary Search | BST property traversal
+703 | Kth Largest Element in a Stream | Easy | Heap / Priority Queue | Design Pattern | Min heap maintenance
+704 | Binary Search | Easy | Binary Search | Array Manipulation | Standard binary search template
+724 | Find Pivot Index | Easy | Prefix Sum | Array Manipulation | Left and right cumulative sums
+739 | Daily Temperatures | Medium | Monotonic Stack | Stack / Queue | Stack indices for next greater
+841 | Keys and Rooms | Medium | BFS / DFS / Graph | Array Manipulation | DFS graph traversal
+876 | Middle of the Linked List | Easy | Linked List Operations | Two Pointers | Fast/slow pointer to middle
+933 | Number of Recent Calls | Easy | Queue | Design Pattern | Time window queue management
+994 | Rotting Oranges | Medium | BFS / DFS / Graph | Queue | Multi-source BFS level traversal
+1071 | Greatest Common Divisor of Strings | Easy | String Manipulation | Greedy | Divisor prefix validation
+1431 | Kids With the Greatest Number of Candies | Easy | Array Manipulation | Greedy | Max value tracking
+1732 | Find the Highest Altitude | Easy | Prefix Sum | Array Manipulation | Cumulative sum max tracking
+1768 | Merge Strings Alternately | Easy | String Manipulation | Two Pointers | Two-pointer alternation
+1926 | Nearest Exit from Entrance in Maze | Medium | BFS / DFS / Graph | Queue | Multi-source BFS in grid
+2095 | Delete the Middle Node of a Linked List | Medium | Linked List Operations | Two Pointers | Fast/slow middle finding
+2130 | Maximum Twin Sum of a Linked List | Medium | Linked List Operations | Two Pointers | Fast/slow + reverse + sum
+2215 | Find the Difference of Two Arrays | Easy | Hash Table / Hash Map | Set Operations | Boolean array as set
+2390 | Removing Stars From a String | Medium | Stack / Queue | String Manipulation | Stack simulation with pointers
+
+================================================================================
+PATTERN SUMMARY
+================================================================================
+
+Two Pointers:                       1, 11, 19, 141, 160, 206, 219, 234, 283, 287, 328, 345, 392, 876, 2095, 2130
+                                    (Total: 16 problems)
+
+Sliding Window:                     3, 76, 219, 239, 424, 480, 567, 643
+                                    (Total: 8 problems)
+
+Linked List Operations:             19, 21, 23, 141, 146, 160, 206, 234, 287, 328, 876, 2095, 2130
+                                    (Total: 13 problems)
+
+Stack / Queue:                      20, 84, 155, 232, 239, 2390
+                                    (Total: 6 problems)
+
+Binary Search:                      33, 35, 162, 374, 704
+                                    (Total: 5 problems)
+
+BFS / DFS / Graph:                  133, 200, 207, 210, 841, 994, 1926
+                                    (Total: 7 problems)
+
+Tree (Binary Tree / BST):           104, 199, 700
+                                    (Total: 3 problems)
+
+Dynamic Programming:                53, 122, 152
+                                    (Total: 3 problems)
+
+Heap / Priority Queue:              215, 295, 347, 480, 692, 703
+                                    (Total: 6 problems)
+
+Hash Table / Hash Map:              1, 3, 49, 133, 146, 217, 219, 242, 347, 692, 2215
+                                    (Total: 11 problems)
+
+Monotonic Stack:                    84, 239, 739
+                                    (Total: 3 problems)
+
+Backtracking:                       17
+                                    (Total: 1 problem)
+
+Greedy:                             11, 121, 122, 334, 605, 1071, 1431
+                                    (Total: 7 problems)
+
+Array / String Manipulation:        11, 33, 35, 121, 151, 152, 162, 199, 200, 238, 283, 334, 345, 374, 392, 424, 605, 643, 1071, 1431, 1768, 1926
+                                    (Total: 22 problems)
+
+Prefix Sum:                         238, 724, 1732
+                                    (Total: 3 problems)
+
+String Manipulation:                17, 20, 151, 242, 345, 392, 1071, 1768, 2390
+                                    (Total: 9 problems)
+
+Quick Select / Selection:           215, 287
+                                    (Total: 2 problems)
+
+Design Pattern (Custom Data Structures): 146, 155, 232, 295, 703, 933
+                                    (Total: 6 problems)
+
+================================================================================
+DIFFICULTY BREAKDOWN
+================================================================================
+
+Easy Problems (27):
+1, 20, 35, 141, 155, 160, 162, 206, 217, 219, 232, 242, 283, 345, 374, 392, 605, 643, 700, 703, 704, 724, 876, 933, 1071, 1431, 1732, 1768
+
+Medium Problems (33):
+3, 11, 17, 19, 21, 33, 49, 53, 76, 121, 122, 133, 146, 151, 152, 162, 199, 200, 207, 210, 215, 219, 234, 239, 287, 334, 347, 424, 480, 567, 841, 994, 1926, 2095, 2130
+
+Hard Problems (6):
+23, 84, 146, 295, 480, 692
+
+================================================================================
