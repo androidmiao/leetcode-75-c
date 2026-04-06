@@ -120,7 +120,7 @@ int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
 
         // 線性探測：如果該位置被占用但不是我們要的值，就繼續往後找。
         while (table[findPos].used) {
-            // 如果找到 key 等於 complement，代表答案已經出現。
+            // @@@如果找到 key 等於 complement，代表答案已經出現。
             if (table[findPos].key == complement) {
                 // 第一個索引是先前存進雜湊表的那個數字位置。
                 result[0] = table[findPos].index;
