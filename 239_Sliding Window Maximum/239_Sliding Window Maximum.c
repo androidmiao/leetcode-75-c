@@ -136,7 +136,7 @@ int* maxSlidingWindow(int* nums, int numsSize, int k, int* returnSize) {
             size--;
         }
 
-        // 把目前索引放到 deque 隊尾
+        // @@@把目前索引放到 deque 隊尾
         insertIndex = (front + size) % k;
         deque[insertIndex] = i;
         size++;
