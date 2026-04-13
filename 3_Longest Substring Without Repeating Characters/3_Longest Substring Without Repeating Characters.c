@@ -84,7 +84,7 @@ int lengthOfLongestSubstring(char* s) {
             left = lastSeen[currentChar] + 1;
         }
 
-        // 更新目前字元最後一次出現的位置
+        // @@更新目前字元最後一次出現的位置
         lastSeen[currentChar] = right;
 
         // 計算目前視窗長度
