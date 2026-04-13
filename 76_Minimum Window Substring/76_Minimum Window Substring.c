@@ -169,7 +169,7 @@ char * minWindow(char * s, char * t) {
         // 取得目前右指標指向的字元。
         unsigned char currentRightChar = (unsigned char)s[right];
 
-        // 如果這個字元仍然是我們需要的，表示成功覆蓋到一個必要字元。
+        // @@如果這個字元仍然是我們需要的，表示成功覆蓋到一個必要字元。
         if (need[currentRightChar] > 0) {
             required--;
         }
@@ -195,7 +195,7 @@ char * minWindow(char * s, char * t) {
             // 左邊界字元即將離開視窗，所以把 need 加回去。
             need[currentLeftChar]++;
 
-            // 如果加回去後 need 大於 0，代表這個字元原本是必要的，
+            // @@如果加回去後 need 大於 0，代表這個字元原本是必要的，
             // 現在少掉它之後，視窗就不再滿足條件了。
             if (need[currentLeftChar] > 0) {
                 required++;
@@ -229,7 +229,7 @@ char * minWindow(char * s, char * t) {
         return NULL;
     }
 
-    // 把最短視窗內容從 s 複製到 result。
+    // @@把最短視窗內容從 s 複製到 result。
     memcpy(result, s + minStart, (size_t)minLen);
 
     // 手動補上字串結尾。
