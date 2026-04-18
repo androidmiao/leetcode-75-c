@@ -1,324 +1,264 @@
 # LeetCode 面試知識庫 — 總目錄
 
-## 概述
-
-本知識庫整合 LeetCode 75 問題、常見解題模式、C 語言慣用寫法以及 Linux Kernel 核心資料結構與算法實現。旨在幫助軟體工程師在系統設計面試和實戰編程中深入理解基礎概念。
-
-## Linux Kernel 交叉索引 (kernel/)
-
-### 8 個核心主題
-
-#### 1. **list_head.md** — 雙向環形鏈結串列
-- **核心概念**：侵入式（intrusive）設計 vs 外部鏈表
-- **關鍵 API**：list_add, list_del, list_entry, container_of, list_for_each_safe
-- **源代碼**：include/linux/list.h, lib/list_sort.c
-- **相關 LeetCode**：206, 141, 160, 21, 23, 876, 2095, 2130, 328, 234
-- **面試考點**：
-  - 侵入式設計為何節省記憶體？
-  - 環形 vs 線性終止的權衡？
-  - 如何安全地在遍歷中刪除？
-
-**文檔大小**：200 行
+> 本知識庫依 Karpathy / LLM-wiki 方法論維護。整合 75 題實戰原始素材（`raw/` = 各題資料夾）與 AI 編譯的跨題知識（`wiki/`）。
+>
+> **入門順序**：從 [[overview]] 開始看全景圖 → 再依需要往下鑽進各個子目錄。
 
 ---
 
-#### 2. **rbtree.md** — 紅黑樹
-- **核心概念**：自平衡搜尋樹，O(log n) 保證
-- **關鍵特性**：
-  - 父指標 + 顏色位壓縮（節省記憶體）
-  - 無通用搜尋函數（各子系統自定義比較）
-  - rb_leftmost 快取 O(1) 最小值訪問
-- **源代碼**：include/linux/rbtree.h, lib/rbtree.c, rbtree_augmented.h
-- **核心應用**：
-  - VMA 樹（mm/mmap.c）：虛擬記憶體區域管理
-  - CFS 調度器（kernel/sched/fair.c）：任務時間線
-  - Deadline 調度器：按截止日期排序
-  - ext4 範圍樹（fs/ext4/extents.c）：磁碟範圍管理
-- **相關 LeetCode**：700, 104, 199
-- **面試考點**：
-  - 為何不提供通用搜尋函數？
-  - rb_leftmost 為何重要？
-  - 紅黑樹 vs AVL 樹的權衡？
+## 目錄結構
 
-**文檔大小**：150 行
+```
+wiki/
+├── _index.md             ← 本檔案（總目錄）
+├── overview.md           ← 專業學習地圖 / 最頂層 synthesis
+├── patterns/             ← 15 個算法模式
+├── c-idioms/             ← 4 個 C 語言工程主題
+├── kernel/               ← 8 個 Linux Kernel 子系統
+├── interview/            ← 4 份面試實戰 cheat sheet
+├── health/               ← 健康檢查報告（定期產生）
+└── logs/                 ← 每次 session 的問答與 ingest 紀錄
+```
 
----
+### 相關文件（repo 根目錄）
 
-#### 3. **hash-table.md** — 核心雜湊表
-- **核心概念**：hlist（單向）vs list_head（雙向），鏈接法 vs 開放定址
-- **關鍵實現**：
-  - hlist：節省 50% 記憶體
-  - GOLDEN_RATIO 乘法雜湊
-  - rhashtable：調整大小的無鎖雜湊表
-  - RCU 保護的無鎖讀
-- **源代碼**：include/linux/hashtable.h, hash.h, jhash.h, lib/rhashtable.c
-- **核心應用**：
-  - Inode 快取（fs/inode.c）
-  - Dentry 快取（fs/namei.c）
-  - 連接追蹤（net/netfilter/nf_conntrack_core.c）
-- **相關 LeetCode**：1, 49, 217, 219, 242, 347, 76, 3
-- **面試考點**：
-  - hlist 為何選擇單向而非雙向？
-  - GOLDEN_RATIO 的離散特性？
-  - rhashtable 如何實現無鎖調整大小？
-
-**文檔大小**：150 行
+- `SKILL.md` — 逐題初始化 / 編輯的 workflow 規範
+- `knowledge-base-system.md` — 本知識庫的 schema 與維護方法論
+- `llm-wiki.md` — Karpathy 原版 LLM-wiki 方法論
+- `ALGORITHM_CATEGORIZATION.txt` — 按模式分類的 75 題對照表
+- `C_IDIOMS_REPORT.md` — C 語言慣用寫法提煉報告
 
 ---
 
-#### 4. **sort-search.md** — 排序與搜尋
-- **核心算法**：
-  - Introsort（Quicksort + Heapsort 混合）
-  - 溢出安全的二分搜尋
-  - 鏈表底部向上歸併排序
-- **設計約束**：棧預算限制（4-8 KB）
-- **源代碼**：lib/sort.c, lib/bsearch.c, lib/list_sort.c
-- **複雜度**：
-  - Introsort：最壞 O(n log n)，棧深度受限
-  - 二分搜尋：O(log n)，無整數溢出
-  - 鏈表排序：O(n log n)，原地歸併
-- **相關 LeetCode**：215, 217, 347, 692, 703, 704
-- **面試考點**：
-  - 為何 Introsort 而非純 Quicksort？
-  - 二分搜尋如何避免整數溢出？
-  - 鏈表排序為何選歸併而非快速排序？
+## 🗺️ 核心頁面
 
-**文檔大小**：120 行
+| 頁面 | 用途 |
+|------|------|
+| [[overview]] | **從這裡開始**。整個專業的學習地圖，把 patterns / c-idioms / kernel / interview 四層整合成一張循序攻讀路徑 |
+| [[health/2026-04-18_lint]] | 最新一次健康檢查報告；缺口清單、矛盾檢查、下一步建議 |
 
 ---
 
-#### 5. **memory-management.md** — 記憶體管理
-- **核心概念**：
-  - 傳統 2-LRU 和 MGLRU（多世代 LRU）
-  - 頁面回收（mm/vmscan.c, mm/swap.c）
-  - Slab 分配器（mm/slub.c）
-  - 批處理優化（folio_batch）
-- **設計洞察**：
-  - LRU 複雜性來自多流交互
-  - MGLRU：減少鎖爭用，提高精度
-  - Slab：避免外碎片，O(1) 分配
-  - 批處理：減少鎖操作 97%
-- **源代碼**：mm/vmscan.c, mm/swap.c, mm/slub.c, mm/page_alloc.c
-- **相關 LeetCode**：146（LRU 快取）
-- **面試考點**：
-  - Kernel LRU 為何比 LeetCode 複雜？
-  - MGLRU 如何改進 2-LRU？
-  - Slab 分配相比 malloc 的優勢？
+## 📚 Patterns（15 個算法模式）
 
-**文檔大小**：150 行
+### 陣列 / 字串基礎
 
----
+- [[patterns/two-pointers]] — 雙指標（對撞、快慢、同向）
+- [[patterns/sliding-window]] — 滑動窗口（固定、可變、count-based）
+- [[patterns/prefix-sum]] — 前綴和、差分、區間查詢
+- [[patterns/string-manipulation]] — 反轉、分詞、in-place 操作
 
-#### 6. **graph-cycle.md** — 圖論與環偵測
-- **核心算法**：
-  - BFS 環偵測（kernel/locking/lockdep.c）
-  - Kahn 拓撲排序（模組依賴）
-- **設計約束**：
-  - DFS 遞迴深度無界，棧溢出風險
-  - BFS 隊列分配，O(V + E) 保證
-  - 實時系統不能有不可預測延遲
-- **應用**：
-  - Lockdep：動態死鎖檢測
-  - depmod：模組依賴拓撲排序
-- **相關 LeetCode**：207, 210, 141
-- **面試考點**：
-  - BFS vs DFS 在 Kernel 中的選擇？
-  - Lockdep 如何檢測死鎖循環？
-  - Kahn 算法如何自然偵測環？
+### 資料結構驅動
 
-**文檔大小**：120 行
+- [[patterns/hash-table]] — 查找、去重、配對、頻率統計
+- [[patterns/linked-list]] — 節點操作、反轉、環偵測、中點
+- [[patterns/stack-queue]] — LIFO / FIFO、括號匹配、monotonic
+- [[patterns/heap-priority-queue]] — 第 k 大、data stream、合併 k 路
+- [[patterns/monotonic-stack]] — 下一個更大元素、柱狀圖
+
+### 搜尋與樹圖
+
+- [[patterns/binary-search]] — 排序陣列、單調函數找答案、找邊界
+- [[patterns/tree]] — 二元樹遞迴、DFS / BFS、路徑
+- [[patterns/bfs-dfs-graph]] — 連通性、最短步數、島嶼
+- [[patterns/backtracking]] — 全排列、組合、剪枝、狀態回退
+- [[patterns/topological-sort]] — 依賴排序、DAG、Kahn / DFS 三色
+- [[patterns/trie]] — 字首樹、自動補全、二進位 XOR Trie
+- [[patterns/union-find]] — 並查集、動態連通、冗餘邊
+
+### 優化與決策
+
+- [[patterns/dynamic-programming]] — 狀態轉移方程、最佳子結構
+- [[patterns/greedy]] — 局部最優 = 全域最優、swap argument
+- [[patterns/bit-manipulation]] — XOR 消去、狀態壓縮、位元數學
 
 ---
 
-#### 7. **circular-buffer.md** — 環形緩衝區
-- **核心概念**：
-  - FIFO，無邊界檢查，O(1) 操作
-  - 位運算優化（冪次大小）
-  - 計數宏：CIRC_CNT, CIRC_SPACE, CIRC_CNT_TO_END
-  - kfifo：泛型、線程安全、分隔讀寫
-- **源代碼**：include/linux/circ_buf.h, include/linux/kfifo.h, lib/kfifo.c
-- **應用**：
-  - 日誌環（kernel/printk/printk_ringbuffer.c）
-  - UART 隊列（drivers/tty/serial/8250/）
-  - 追蹤環（kernel/trace/ring_buffer.c）
-- **相關 LeetCode**：232, 239, 933, 642
-- **面試考點**：
-  - 為何環形必須冪次大小？
-  - CIRC_CNT 如何處理環繞？
-  - 為何 in/out 指標永不重置？
+## 🔧 C Idioms（4 個工程主題）
 
-**文檔大小**：100 行
+- [[c-idioms/pointer-manipulation]] — 指標操作、dummy node、雙指標、pointer-to-pointer
+- [[c-idioms/manual-memory]] — malloc / realloc / free 配對、擴容策略
+- [[c-idioms/comparator-patterns]] — qsort / bsearch callback、穩定性、強弱排序
+- [[c-idioms/macro-tricks]] — `container_of`、`ARRAY_SIZE`、`BIT(n)`、list 遍歷
 
 ---
 
-#### 8. **network-sliding-window.md** — 網路滑動窗口
-- **核心概念**：
-  - 發送窗口（snd_wnd）和擁塞窗口（snd_cwnd）
-  - 流量控制和擁塞控制
-  - 序列號環繞（32-bit）處理
-  - RED（隨機早期檢測）隊列管理
-- **源代碼**：net/ipv4/tcp_input.c, tcp_output.c, tcp_timer.c, net/core/red.c
-- **設計洞察**：
-  - 相對序列號比較避免環繞點失敗
-  - 兩個窗口交互實現雙層流控
-  - RED 避免全局同步，改善吞吐量
-- **相關 LeetCode**：76, 239, 3, 424, 567, 643, 480
-- **面試考點**：
-  - 為什麼需要相對序列號比較？
-  - snd_wnd 和 snd_cwnd 的區別？
-  - RED 為何使用隨機丟棄？
+## 🐧 Kernel（8 個 Linux 子系統）
 
-**文檔大小**：100 行
+### 基礎資料結構
+
+**[[kernel/list-head]]** — 雙向環形鏈表
+- 侵入式設計、`container_of`、`list_for_each_safe`
+- 源碼：`include/linux/list.h`, `lib/list_sort.c`
+- 相關題：206, 141, 160, 21, 23, 876, 2095, 2130, 328, 234
+
+**[[kernel/rbtree]]** — 紅黑樹
+- 父指標 + 顏色位壓縮、無通用搜尋函數、`rb_leftmost` O(1)
+- 源碼：`include/linux/rbtree.h`, `lib/rbtree.c`
+- 應用：VMA tree、CFS scheduler、ext4 extents
+- 相關題：700, 104, 199
+
+**[[kernel/hash-table]]** — hlist / rhashtable
+- hlist 省 50% 記憶體、GOLDEN_RATIO 乘法雜湊、rhashtable 無鎖 resize
+- 源碼：`include/linux/hashtable.h`, `lib/rhashtable.c`
+- 應用：inode cache、dentry cache、netfilter conntrack
+- 相關題：1, 49, 217, 219, 242, 347, 76, 3
+
+### 演算法內核
+
+**[[kernel/sort-search]]** — Introsort + bsearch + list_sort
+- Introsort（quicksort + heapsort 混合）、棧預算 4-8 KB
+- 溢位安全的二分搜尋、鏈表底部向上歸併
+- 源碼：`lib/sort.c`, `lib/bsearch.c`, `lib/list_sort.c`
+- 相關題：215, 217, 347, 692, 703, 704
+
+**[[kernel/graph-cycle]]** — Lockdep / depmod
+- BFS（非 DFS）環偵測：棧預算 + 延遲可預測
+- Kahn 拓樸排序於 module dependency
+- 源碼：`kernel/locking/lockdep.c`
+- 相關題：207, 210, 141
+
+### 系統應用
+
+**[[kernel/memory-management]]** — LRU / MGLRU / slub
+- 多世代 LRU 減少鎖爭用、slab 避免外碎片、批處理 folio_batch
+- 源碼：`mm/vmscan.c`, `mm/swap.c`, `mm/slub.c`
+- 相關題：146
+
+**[[kernel/circular-buffer]]** — kfifo / printk ringbuf
+- 冪次大小 + 位運算、in/out 永不 reset、`CIRC_CNT`
+- 源碼：`include/linux/circ_buf.h`, `include/linux/kfifo.h`, `lib/kfifo.c`
+- 相關題：232, 239, 933, 642
+
+**[[kernel/network-sliding-window]]** — TCP snd_wnd / snd_cwnd
+- 相對序列號比較避免 32-bit 環繞、雙層流控、RED 隨機丟棄
+- 源碼：`net/ipv4/tcp_input.c`, `tcp_output.c`, `net/core/red.c`
+- 相關題：76, 239, 3, 424, 567, 643, 480
 
 ---
 
-## 知識體系統計
+## 🎯 Interview（4 份實戰 cheat sheet）
 
-### 核心 Kernel 子系統
-
-| 子系統 | 檔案數 | 主要概念 | 複雜度 |
-|--------|--------|--------|--------|
-| 鏈表和樹 | 2 | list_head, rbtree | 基礎 |
-| 雜湊表 | 1 | hlist, rhashtable | 中級 |
-| 排序/搜尋 | 1 | Introsort, 二分搜尋 | 中級 |
-| 記憶體 | 1 | LRU, MGLRU, Slab | 高級 |
-| 同步/圖 | 1 | Lockdep, BFS | 中級 |
-| 隊列 | 1 | 環形緩衝, FIFO | 基礎 |
-| 網路 | 1 | 滑動窗口, 擁塞控制 | 高級 |
-
-**總計**：8 個檔案，1200 行內容，涵蓋 30+ 核心源代碼位置
+- [[interview/complexity-cheatsheet]] — 每個資料結構 / 演算法的時間與空間複雜度表
+- [[interview/edge-cases]] — 空輸入、單元素、極值、整數溢位、重複元素
+- [[interview/follow-up-patterns]] — 面試官常見追問方向與應對
+- [[interview/code-review-questions]] — 主管角度的 code review 考題清單
 
 ---
 
-## 快速查找：問題 → 知識映射
+## 📅 日誌與健康檢查
+
+- [[logs/2026-04-18_session]] — 本次 session 的建構紀錄
+- [[health/2026-04-18_lint]] — 本次健康檢查報告
+
+---
+
+## 🔍 快速查找：問題 → 知識映射
 
 ### 按 Kernel 概念分類
 
-**list_head 相關**
-- 206：反轉鏈表
-- 141：環形鏈表檢測
-- 160：相交鏈表
-- 21：合併兩個排序鏈表
-- 23：合併 K 個排序鏈表
-- 876：鏈表的中點
-- 2095：刪除鏈表中間的節點
-- 2130：鏈表最大孿生和
-- 328：奇偶位置節點重組
-- 234：回文鏈表檢測
+**list_head 相關**：206, 141, 160, 21, 23, 876, 2095, 2130, 328, 234
 
-**hash-table 相關**
-- 1：兩數之和
-- 49：字母異位詞分組
-- 217：存在重複元素
-- 219：存在重複元素 II
-- 242：有效的字母異位詞
-- 347：前 K 個高頻元素
-- 76：最小覆蓋子字符串
-- 3：無重複字符的最長子字符串
+**hash-table 相關**：1, 49, 217, 219, 242, 347, 76, 3
 
-**sort-search 相關**
-- 215：陣列中第 K 大元素（quickselect）
-- 217：存在重複元素（排序）
-- 347：前 K 高頻（堆或排序）
-- 692：前 K 個高頻單詞
-- 703：流的第 K 大元素（堆）
-- 704：二分搜尋
+**sort-search 相關**：215, 217, 347, 692, 703, 704
 
-**memory-management 相關**
-- 146：LRU 快取設計
+**memory-management 相關**：146
 
-**graph-cycle 相關**
-- 207：課程表
-- 210：課程表 II（拓撲排序）
-- 141：環形鏈表（環偵測）
+**graph-cycle 相關**：207, 210, 141
 
-**circular-buffer 相關**
-- 232：用棧實現隊列
-- 239：滑動窗口最大值
-- 933：最近的請求次數
-- 642：搜索自動完成系統
+**circular-buffer 相關**：232, 239, 933, 642
 
-**network-sliding-window 相關**
-- 76：最小覆蓋子字符串
-- 239：滑動窗口最大值
-- 3：無重複字符的最長子字符串
-- 424：用至多 k 次操作替換字符
-- 567：字符串排列
-- 643：子陣列最大平均數 I
-- 480：滑動窗口中位數
+**network-sliding-window 相關**：76, 239, 3, 424, 567, 643, 480
 
-**rbtree 相關**
-- 700：二叉搜尋樹搜尋
-- 104：二叉樹最大深度
-- 199：二叉樹右視圖
+**rbtree 相關**：700, 104, 199
+
+### 按 Pattern 快速查
+
+以下列出有明確題目對應的 pattern（無對應題但仍完整收錄的 pattern 也見 patterns/ 檔案本身）：
+
+- **Two Pointers**：11, 167, 141, 234, 876, 283, 392
+- **Sliding Window**：3, 76, 239, 424, 567, 643, 480, 219, 1456
+- **Prefix Sum**：724, 1732, 238
+- **String Manipulation**：151, 345, 1768, 2390, 605
+- **Hash Table**：1, 49, 217, 242, 347, 2215, 1
+- **Linked List**：19, 21, 23, 141, 160, 206, 234, 328, 876, 2095, 2130
+- **Stack / Queue**：20, 155, 232, 739, 2390
+- **Heap**：23, 215, 295, 347, 703, 692
+- **Monotonic Stack**：84, 239, 496, 739
+- **Binary Search**：33, 35, 162, 374, 704
+- **Tree**：104, 199, 700
+- **BFS / DFS / Graph**：133, 200, 207, 210, 841, 994, 1926
+- **Backtracking**：17
+- **Topological Sort**：207, 210
+- **DP**：53, 121, 122, 152, 334
+- **Greedy**：121, 122, 605
+- **Union-Find / Trie / Bit Manipulation**：repo 內 LeetCode 75 無直接題，但屬 Google 面試常考補充模式（見對應 pattern 檔）
 
 ---
 
-## 使用建議
+## 📊 知識庫統計
 
-### 對於面試準備
+| 類別 | 檔案數 | 總行數 |
+|------|--------|--------|
+| Patterns | 19 | ~7,200 |
+| C Idioms | 4 | ~1,400 |
+| Kernel | 8 | ~2,900 |
+| Interview | 4 | ~1,600 |
+| Overview + Index + Health + Log | 4 | ~900 |
+| **總計** | **39** | **~14,000** |
 
-1. **第 1 週**：掌握基礎資料結構
-   - list_head：理解侵入式設計
-   - hash-table：hlist vs list_head 的權衡
-   - circular-buffer：環形設計的位運算優化
+- **Raw 題目資料夾**：75（部分含舊/新雙重目錄待清理，見健康檢查）
+- **涵蓋 Kernel 源代碼位置**：30+
+- **最後更新**：2026-04-18
+- **最近一次 lint**：2026-04-18（見 [[health/2026-04-18_lint]]）
 
-2. **第 2 週**：深入算法
-   - sort-search：Introsort 的自適應性
-   - graph-cycle：BFS vs DFS 的實時性考量
-   - memory-management：LRU 的多層設計
+---
 
-3. **第 3 週**：系統設計視角
-   - rbtree：應用於調度和記憶體管理
-   - network-sliding-window：擁塞控制的雙層設計
-   - 整合跨領域概念
+## 🧭 使用建議
+
+### 對於面試準備（有基礎者，4-6 週）
+
+1. **Week 1**：`c-idioms/pointer-manipulation` + `c-idioms/manual-memory` + `patterns/two-pointers` + `patterns/sliding-window` + `patterns/prefix-sum`
+2. **Week 2**：`patterns/linked-list` + `patterns/hash-table` + `patterns/stack-queue` + `kernel/list-head` + `kernel/hash-table` + `kernel/circular-buffer`
+3. **Week 3**：`patterns/binary-search` + `patterns/tree` + `patterns/bfs-dfs-graph` + `patterns/topological-sort` + `kernel/rbtree` + `kernel/graph-cycle`
+4. **Week 4**：`patterns/dynamic-programming` + `patterns/greedy` + `patterns/monotonic-stack` + `patterns/heap-priority-queue` + `patterns/union-find` + `patterns/trie` + `patterns/bit-manipulation`
+5. **Week 5-6**：模擬面試 + 所有 `interview/` 內容 + 回頭做健康檢查
+
+完整學習路徑見 [[overview]]。
 
 ### 對於代碼審查
 
-1. 檢查清單：
-   - 是否考慮了棧預算（recursion vs iteration）？
-   - 是否避免了整數溢出（序列號比較）？
-   - 是否有鎖爭用瓶頸（批處理）？
-
-2. 效能優化：
-   - 位運算代替模運算（circular buffer）
-   - 快取局部性（list_head vs 外部指標）
-   - 無邊界檢查（環形設計）
+- 檢查清單見 [[interview/code-review-questions]]
+- Kernel 視角的效能考量：棧預算、整數溢位、鎖爭用瓶頸
 
 ### 對於系統設計
 
-- **VMA 管理**：rbtree + 二分搜尋，O(log n) 映射查詢
-- **進程調度**：rbtree 追蹤優先級，O(1) 選擇下一任務
-- **網路協議**：滑動窗口 + RED，避免全局同步
-- **快取系統**：雜湊表 + LRU，O(1) 訪問 + 老化淘汰
+- VMA 管理 → [[kernel/rbtree]]
+- 進程調度 → [[kernel/rbtree]]（CFS）
+- 網路協議 → [[kernel/network-sliding-window]]
+- 快取系統 → [[kernel/hash-table]] + [[kernel/memory-management]]
 
 ---
 
-## 統計概覽
-
-- **Kernel 檔案總計**：8 個
-- **涵蓋源代碼位置**：30+ 處
-- **LeetCode 問題覆蓋**：40+ 個（重點 75 中的 40）
-- **總文檔行數**：~1200 行
-- **更新日期**：2026-04-04
-
----
-
-## 參考資源
+## 📖 參考資源
 
 ### 官方文檔
+
 - [Linux Kernel Documentation](https://www.kernel.org/doc/)
 - [LWN.net](https://lwn.net/)
 - RFC 793（TCP 協議）
 
 ### 推薦閱讀
-1. *Understanding the Linux Kernel* - Bovet & Cesati
-2. *The Linux Programming Interface* - Michael Kerrisk
+
+1. *Understanding the Linux Kernel* — Bovet & Cesati
+2. *The Linux Programming Interface* — Michael Kerrisk
 3. LeetCode 官方解題卡
 
-### 進階主題（未涵蓋）
-- **RCU（Read-Copy-Update）**：無鎖讀優化
-- **Bitmaps 和 Bitmasks**：高效集合表示
-- **Work Queue**：異步任務隊列
-- **Memory Cgroups**：資源隔離
-- **eBPF**：核心內虛擬機
+### 進階主題（未涵蓋 / TODO）
+
+- **RCU（Read-Copy-Update）** — 無鎖讀優化
+- **Bitmaps / `include/linux/bitmap.h`** — 高效集合表示（部分於 `patterns/bit-manipulation` 觸及）
+- **Work Queue** — 異步任務隊列
+- **Memory Cgroups** — 資源隔離
+- **eBPF** — 核心內虛擬機
