@@ -1,7 +1,7 @@
 # 專業學習地圖 — LeetCode / C / Kernel 三維整合
 
 > 本頁是整個 `leetcode-75-c` 知識庫的最頂層 synthesis。
-> 把 75 題實戰 + 15 個演算法模式 + 8 個 Kernel 子系統 + C 語言慣用寫法，整合成一張可循序攻讀的學習地圖。
+> 把 75 題實戰 + 15 個演算法模式 + 9 個 Kernel 子系統 + C 語言慣用寫法，整合成一張可循序攻讀的學習地圖。
 > 建議從這裡開始閱讀，然後按興趣 / 需要往下鑽進各個 `patterns/`、`kernel/`、`c-idioms/`、`interview/` 檔案。
 
 ---
@@ -95,7 +95,7 @@
 
 ---
 
-## 3. 系統程式視野層：8 個 Kernel 子系統
+## 3. 系統程式視野層：9 個 Kernel 子系統
 
 這一層是本知識庫最具辨識度的部分。面試時若能在談完 LeetCode 解法後延伸到 Linux Kernel 的真實實作，立即和 90% 的候選人拉開距離。
 
@@ -109,8 +109,9 @@
 | **graph-cycle** (lockdep / depmod) | 207, 210, 141 | 核心選 BFS 不選 DFS — 棧預算 + 延遲可預測性 | [[kernel/graph-cycle]] |
 | **circular-buffer** (kfifo / printk ringbuf) | 232, 239, 933 | 冪次大小 + 位運算；in/out 指標永不 reset | [[kernel/circular-buffer]] |
 | **network-sliding-window** (TCP cwnd) | 76, 239, 3, 424, 480, 567, 643 | 相對序列號比較避免 32-bit 環繞；RED 隨機丟棄避免同步 | [[kernel/network-sliding-window]] |
+| **spinlock** (同步原語) | Mon-3 code review（Bug #4） | 唯一能在 atomic context 使用的鎖；busy-wait、禁止睡眠；三變體擋 process / softirq / IRQ | [[kernel/spinlock]] |
 
-**學習順序建議**：基礎資料結構 (list_head → hash-table → rbtree) → 演算法內核 (sort-search → graph-cycle) → 子系統應用 (memory-management → circular-buffer → network-sliding-window)。
+**學習順序建議**：基礎資料結構 (list_head → hash-table → rbtree) → 演算法內核 (sort-search → graph-cycle) → 子系統應用 (memory-management → circular-buffer → network-sliding-window) → 同步原語 (spinlock)。
 
 ---
 

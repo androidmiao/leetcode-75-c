@@ -14,7 +14,7 @@ wiki/
 ├── overview.md           ← 專業學習地圖 / 最頂層 synthesis
 ├── patterns/             ← 15 個算法模式
 ├── c-idioms/             ← 4 個 C 語言工程主題
-├── kernel/               ← 8 個 Linux Kernel 子系統
+├── kernel/               ← 9 個 Linux Kernel 子系統（含同步原語）
 ├── interview/            ← 4 份面試實戰 cheat sheet
 ├── health/               ← 健康檢查報告（定期產生）
 └── logs/                 ← 每次 session 的問答與 ingest 紀錄
@@ -83,7 +83,7 @@ wiki/
 
 ---
 
-## 🐧 Kernel（8 個 Linux 子系統）
+## 🐧 Kernel（9 個 Linux 子系統）
 
 ### 基礎資料結構
 
@@ -135,14 +135,35 @@ wiki/
 - 源碼：`net/ipv4/tcp_input.c`, `tcp_output.c`, `net/core/red.c`
 - 相關題：76, 239, 3, 424, 567, 643, 480
 
+### 同步與併發原語（2026-04-21 新增）
+
+**[[kernel/spinlock]]** — 自旋鎖
+- Busy-wait、禁止睡眠、唯一能在 atomic context 使用的鎖
+- 三種變體：`spin_lock()` / `spin_lock_bh()` / `spin_lock_irqsave()`（擋 process / softirq / hard IRQ）
+- 地雷：持鎖呼叫 `GFP_KERNEL`、鎖順序不一致、critical section 過長
+- 源碼：`include/linux/spinlock.h`, `kernel/locking/spinlock.c`
+- 對應 code review：[[interview/Mon-3-code-review-solution]] Bug #4（`GFP_KERNEL` 在 spinlock 內）
+
+### 韌體與平台（跨 wiki 參考，2026-04-20 新增關聯）
+
+**Firmware / AP↔SCP 子系統**（交叉引用 `common-android-mainline` wiki）
+- ARM SCMI（10 protocols、4 transports、19,481 行）
+- Google ACPM（GS101 Pixel 系列、1,111 行、2024 upstream）
+- Qualcomm RPMh + CPUCP（硬體 TCS 旁路、X Elite 引入 SCMI perf）
+- 源碼：`drivers/firmware/arm_scmi/`, `drivers/firmware/samsung/exynos-acpm.c`, `drivers/firmware/qcom/`
+- 對應 code review：`[[interview/code-review-questions]]` §14-§17
+- 對應模擬日：`[[interview/weekly-mock-bank]]` 附錄 E
+- 深度分析：`/sessions/amazing-peaceful-wozniak/mnt/common-android-mainline/wiki/analyses/scmi-vs-google-acpm.md`
+
 ---
 
-## 🎯 Interview（4 份實戰 cheat sheet）
+## 🎯 Interview（5 份實戰 cheat sheet）
 
 - [[interview/complexity-cheatsheet]] — 每個資料結構 / 演算法的時間與空間複雜度表
 - [[interview/edge-cases]] — 空輸入、單元素、極值、整數溢位、重複元素
 - [[interview/follow-up-patterns]] — 面試官常見追問方向與應對
-- [[interview/code-review-questions]] — 主管角度的 code review 考題清單
+- [[interview/code-review-questions]] — 主管角度的 code review 考題清單；**2026-04-20 擴充**第 6-13 章以 Linux Kernel 視角（coding style、ERR_PTR、goto cleanup、GFP、RCU、lockdep、cache line、checkpatch/KASAN 等）；**2026-04-20 追加**第 14-17 章 Firmware 子系統視角（ARM SCMI、Google ACPM、Qualcomm RPMh 三方 review 差異）
+- [[interview/weekly-mock-bank]] — **新增（2026-04-20）**：一週 7 天輪班制模擬面試題庫，每天對應一個 kernel 子系統，含熱身 + 演算法 Round + kernel code review + deep-dive + 自評；**同日追加附錄 E** Firmware / AP↔SCP 選修模擬日（bounded token allocator + SCMI vendor protocol review + GS101 DVFS deep-dive）
 
 ---
 
@@ -172,6 +193,8 @@ wiki/
 **network-sliding-window 相關**：76, 239, 3, 424, 567, 643, 480
 
 **rbtree 相關**：700, 104, 199
+
+**spinlock 相關**：併發保護、IRQ handler、atomic context（主要概念題，對應 [[interview/Mon-3-code-review-solution]]）
 
 ### 按 Pattern 快速查
 
@@ -203,14 +226,15 @@ wiki/
 |------|--------|--------|
 | Patterns | 19 | ~7,200 |
 | C Idioms | 4 | ~1,400 |
-| Kernel | 8 | ~2,900 |
-| Interview | 4 | ~1,600 |
+| Kernel | 9 | ~3,100 |
+| Interview | 6 | ~3,000 |
 | Overview + Index + Health + Log | 4 | ~900 |
-| **總計** | **39** | **~14,000** |
+| **總計** | **42** | **~15,600** |
 
 - **Raw 題目資料夾**：75（部分含舊/新雙重目錄待清理，見健康檢查）
 - **涵蓋 Kernel 源代碼位置**：30+
-- **最後更新**：2026-04-18
+- **最後更新**：2026-04-21（新增 [[kernel/spinlock]] 同步原語筆記 + [[interview/Mon-3-code-review-solution]] 逐行繁中註解解答）
+- **前次更新**：2026-04-20（新增 Firmware 子系統視角 code review §14-§17 + 附錄 E Firmware 模擬日）
 - **最近一次 lint**：2026-04-18（見 [[health/2026-04-18_lint]]）
 
 ---
@@ -220,7 +244,7 @@ wiki/
 ### 對於面試準備（有基礎者，4-6 週）
 
 1. **Week 1**：`c-idioms/pointer-manipulation` + `c-idioms/manual-memory` + `patterns/two-pointers` + `patterns/sliding-window` + `patterns/prefix-sum`
-2. **Week 2**：`patterns/linked-list` + `patterns/hash-table` + `patterns/stack-queue` + `kernel/list-head` + `kernel/hash-table` + `kernel/circular-buffer`
+2. **Week 2**：`patterns/linked-list` + `patterns/hash-table` + `patterns/stack-queue` + `kernel/list-head` + `kernel/hash-table` + `kernel/circular-buffer` + `kernel/spinlock`
 3. **Week 3**：`patterns/binary-search` + `patterns/tree` + `patterns/bfs-dfs-graph` + `patterns/topological-sort` + `kernel/rbtree` + `kernel/graph-cycle`
 4. **Week 4**：`patterns/dynamic-programming` + `patterns/greedy` + `patterns/monotonic-stack` + `patterns/heap-priority-queue` + `patterns/union-find` + `patterns/trie` + `patterns/bit-manipulation`
 5. **Week 5-6**：模擬面試 + 所有 `interview/` 內容 + 回頭做健康檢查
