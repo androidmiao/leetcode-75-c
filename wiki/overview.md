@@ -1,7 +1,7 @@
 # 專業學習地圖 — LeetCode / C / Kernel 三維整合
 
 > 本頁是整個 `leetcode-75-c` 知識庫的最頂層 synthesis。
-> 把 75 題實戰 + 15 個演算法模式 + 9 個 Kernel 子系統 + C 語言慣用寫法，整合成一張可循序攻讀的學習地圖。
+> 把 75 題實戰 + 19 個演算法模式（15 核心 + 4 補充）+ 12 個 Kernel 子系統 + C 語言慣用寫法 + 15 份 interview 教材，整合成一張可循序攻讀的學習地圖。
 > 建議從這裡開始閱讀，然後按興趣 / 需要往下鑽進各個 `patterns/`、`kernel/`、`c-idioms/`、`interview/` 檔案。
 
 ---
@@ -95,7 +95,7 @@
 
 ---
 
-## 3. 系統程式視野層：9 個 Kernel 子系統
+## 3. 系統程式視野層：12 個 Kernel 子系統
 
 這一層是本知識庫最具辨識度的部分。面試時若能在談完 LeetCode 解法後延伸到 Linux Kernel 的真實實作，立即和 90% 的候選人拉開距離。
 
@@ -110,14 +110,19 @@
 | **circular-buffer** (kfifo / printk ringbuf) | 232, 239, 933 | 冪次大小 + 位運算；in/out 指標永不 reset | [[kernel/circular-buffer]] |
 | **network-sliding-window** (TCP cwnd) | 76, 239, 3, 424, 480, 567, 643 | 相對序列號比較避免 32-bit 環繞；RED 隨機丟棄避免同步 | [[kernel/network-sliding-window]] |
 | **spinlock** (同步原語) | Mon-3 code review（Bug #4） | 唯一能在 atomic context 使用的鎖；busy-wait、禁止睡眠；三變體擋 process / softirq / IRQ | [[kernel/spinlock]] |
+| **rcu** (lockless reader) | code review reader-heavy 結構 | 讀者完全零鎖、寫者 copy-modify-publish + 延後釋放；read-side 不可睡（要睡用 SRCU）| [[kernel/rcu]] |
+| **bitmap** (位元圖) | 資源池 / cpumask / SCMI token | `DECLARE_BITMAP`、`find_first_zero_bit` 回 `nbits` 表示沒找到；`patterns/bit-manipulation` 的「N=64」推廣 | [[kernel/bitmap]] |
+| **workqueue** (deferred work) | MCUPM time sync、SCMI notification | `alloc_workqueue` 是現代寫法；`WQ_FREEZABLE` / `WQ_MEM_RECLAIM` flag；teardown 三步 stop flag → cancel_sync → destroy | [[kernel/workqueue]] |
 
-**學習順序建議**：基礎資料結構 (list_head → hash-table → rbtree) → 演算法內核 (sort-search → graph-cycle) → 子系統應用 (memory-management → circular-buffer → network-sliding-window) → 同步原語 (spinlock)。
+**學習順序建議**：基礎資料結構 (list_head → hash-table → rbtree) → 演算法內核 (sort-search → graph-cycle) → 子系統應用 (memory-management → circular-buffer → network-sliding-window) → 同步原語 (spinlock → rcu → bitmap) → deferred work (workqueue)。
 
 ---
 
-## 4. 面試實戰層：4 份 cheat sheet
+## 4. 面試實戰層：15 份教材，分四群
 
-當你把前三層都打通，面試時真正決勝的是「怎麼講、怎麼回應 follow-up、怎麼接 code review」。
+當你把前三層都打通，面試時真正決勝的是「怎麼講、怎麼回應 follow-up、怎麼接 code review」。本知識庫的 interview 區又分為四群，依「先廣後深、先小後大」的順序使用。
+
+### 4.1 通用 cheat sheet（4 份）
 
 | 主題 | 用途 | 檔案 |
 |------|------|------|
@@ -125,6 +130,31 @@
 | **邊界案例** | 空輸入、單元素、整數溢位、極值測試 | [[interview/edge-cases]] |
 | **Follow-up 模式** | 面試官常見的追問方向與應對 | [[interview/follow-up-patterns]] |
 | **Code Review 考題** | 主管角度的程式碼審查問題清單 | [[interview/code-review-questions]] |
+
+### 4.2 一週模擬面試（5 份）
+
+| 主題 | 檔案 |
+|------|------|
+| 一週 7 天輪班題庫（含 Firmware 附錄 E） | [[interview/weekly-mock-bank]] |
+| Mon-3 / Tue-3 / Thu-3 / Fri-4 逐行繁中註解解答 | [[interview/Mon-3-code-review-solution]]、[[interview/Tue-3-code-review-solution]]、[[interview/Thu-3-code-review-solution]]、[[interview/Fri-4-code-review-solution]] |
+
+### 4.3 Google Code Review 同步原語系列（4 份，AP-DSP IPC 主軸）
+
+| 主題 | 檔案 |
+|------|------|
+| 通用版（POSIX 視角） | [[interview/google_code_review_semaphore_prep]] |
+| Linux kernel 6 題故意埋 bug | [[interview/google_code_review_semaphore_prep_linux]] |
+| 6 題修正解答（dsp_send_ipi、channel_alloc、log_read、mbox_probe、time_sync、driver_remove）| [[interview/google_code_review_semaphore_prep_linux_solution]] |
+| 5 大原語選擇邏輯速查（決策樹 + 反模式表） | [[interview/google_code_review_semaphore_prep_linux_primitives]] |
+
+### 4.4 Driver-level / 教材級 review（2 份，2026-04-30 新增）
+
+| 主題 | 檔案 |
+|------|------|
+| MediaTek MCUPM driver 真實 production review（11 題 + checklist） | [[interview/mcupm-code-review]] |
+| Google interview 八件套教材（SKILL.md 指定 reference） | [[interview/google-stack-with-min]] |
+
+**整體閱讀順序建議**：4.1（先建立 review 視角）→ 4.4 google-stack-with-min（單檔小範圍熱身）→ 4.2 weekly mock（每天輪一個 kernel 子系統）→ 4.3 同步原語系列（深入 5 大原語）→ 4.4 MCUPM（driver 級三檔交織的最終 boss）。
 
 ---
 
@@ -143,7 +173,7 @@
 **Week 2：資料結構實作**
 - `patterns/linked-list` + `patterns/hash-table` + `patterns/stack-queue`
 - 刷題：21, 23, 141, 146, 206, 234, 20, 155, 232, 739
-- Kernel 延伸：`kernel/list-head.md` + `kernel/hash-table.md` + `kernel/circular-buffer.md`
+- Kernel 延伸：`kernel/list-head.md` + `kernel/hash-table.md` + `kernel/circular-buffer.md` + `kernel/spinlock.md` + `kernel/rcu.md`（reader-heavy 結構的延伸）
 
 **Week 3：搜尋、樹、圖**
 - `patterns/binary-search` + `patterns/tree` + `patterns/bfs-dfs-graph` + `patterns/topological-sort`
@@ -153,11 +183,13 @@
 **Week 4：優化模式 + 進階資料結構**
 - `patterns/dynamic-programming` + `patterns/greedy` + `patterns/monotonic-stack` + `patterns/heap-priority-queue` + `patterns/union-find` + `patterns/trie` + `patterns/bit-manipulation`
 - 刷題：53, 152, 215, 295, 347, 703, 84, 239, 605
-- Kernel 延伸：`kernel/sort-search.md` + `kernel/memory-management.md`
+- Kernel 延伸：`kernel/sort-search.md` + `kernel/memory-management.md` + `kernel/bitmap.md`（bit-manipulation 的「N=64」推廣）
 
 **Week 5-6：模擬面試 + Code Review 訓練**
 - 每題用 3 層結構回答：模式辨識 → C 實作 → Kernel 延伸
-- 讀 `interview/` 四份 cheat sheet，每份做一輪 mock 問答
+- 讀 `interview/` 核心 cheat sheet 與 weekly mock bank，每份做一輪 mock 問答
+- 駕馭 `kernel/workqueue.md`：deferred work 的選用、suspend/resume 對稱、teardown 三步
+- 終局練習：跑一遍 `interview/google-stack-with-min` 八件套；再上 `interview/mcupm-code-review` 11 題真實 driver review
 - 回頭做健康檢查（見下）
 
 ### 5.2 純初學者：系統化入門路徑
@@ -203,12 +235,12 @@
 | 項目 | 數量 |
 |------|------|
 | Raw 原始素材題目資料夾 | 75 |
-| Wiki patterns 檔案 | 15 (含本次補充 4 個：union-find, trie, bit-manipulation, topological-sort) |
+| Wiki patterns 檔案 | 19 (15 核心 + 4 補充：union-find, trie, bit-manipulation, topological-sort) |
 | Wiki c-idioms 檔案 | 4 |
-| Wiki kernel 檔案 | 8 |
-| Wiki interview 檔案 | 4 |
-| Wiki 總行數 | ≈ 9,500+ (含新補 pattern 後) |
-| 最後 lint 日期 | 2026-04-18 (見 `health/2026-04-18_lint.md`) |
+| Wiki kernel 檔案 | 12（基礎 8 + 同步原語 spinlock/rcu + 集合 bitmap + deferred workqueue）|
+| Wiki interview 檔案 | 15（cheat sheet 4 + weekly mock 5 + 同步原語系列 4 + driver review 2）|
+| Wiki 總行數 | ≈ 20,700 |
+| 最後 lint 日期 | 2026-04-30 (見 `health/2026-04-30_lint.md`) |
 
 ---
 

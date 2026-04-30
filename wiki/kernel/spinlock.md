@@ -176,6 +176,8 @@ Review 任何 spinlock 代碼時，**先問自己 lockdep 噴什麼**往往是�
 
 ## 相關 wiki
 
+- `[[interview/google_code_review_semaphore_prep_linux_primitives]]` — **5 大原語選擇邏輯總圖**（mutex / spinlock / semaphore / completion / rwsem）；spinlock 在「ISR 共享 list」「bitmap 池」場景的 圖解對照
+- `[[interview/google_code_review_semaphore_prep_linux_solution]]` — AP-DSP IPC driver 6 題修正解答；題目 1 `list_lock`（spinlock_irqsave）、題目 2 channel bitmap（spinlock）的 idiomatic 用法
 - `[[interview/weekly-mock-bank]]` — Mon-3 Code Review Round 的 Bug #4（spinlock + `GFP_KERNEL`）
 - `[[interview/Mon-3-code-review-solution]]` — 上題逐行繁中註解 + 修正解答（`spin_lock_irqsave` 範式示範）
 - `[[interview/code-review-questions]]` — 主管視角 code review 清單（§鎖與同步章節）

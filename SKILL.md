@@ -14,6 +14,7 @@ Use this skill for tasks inside the `leetcode-75-c` repository when the user wan
 - sync LeetCode Description / Editorial content into local markdown notes
 - compare the current implementation against editorial notes
 - maintain `README.md`, `*_Description.md`, `*_Editorial.md`, or `*_Opus-4.6.md`
+- set up a mock interview / code-review folder under `interview/<topic>/` (review buggy code, produce fix + trace + test methodology)
 
 ## Folder styles
 
@@ -42,6 +43,29 @@ Usually contains:
 - sometimes extra markdown files
 
 Only use this layout when the folder already uses it or the user explicitly asks for it.
+
+### Interview review style
+
+Lives under `interview/<problem_or_topic>/`. Used for mock-interview / code-review style content (not standard LeetCode submissions). Contains paired buggy and fixed implementations plus teaching artefacts.
+
+Standard files:
+
+- `original.c` — the buggy candidate-style version, kept verbatim as-is
+- `solution.c` — fixed version, with `static` storage where appropriate and an `#ifndef <FLAG>`-guarded `main` so the same source can be reused as a library by tests
+- `README.md` — bug analysis, problem context, fix rationale, optional follow-up discussion (e.g. O(1) min via auxiliary stack for a min-stack problem)
+- `TRACE.md` — step-by-step operation trace through a concrete example sequence with state snapshots and ASCII diagrams
+- `TESTING.md` — testing methodology: precise tests + sanitizer + compiler warnings + static analysis, with a per-bug detection-tool matrix and a reusable checklist
+- `tests.c` — unit / property-based tests against `solution.c` (poisoned out-params, edge cases, random sequences against a reference implementation)
+- `bug_demo.c` — per-bug demonstrations against `original.c`, using memory poisoning so bugs are visible without MSan / Valgrind
+- `Makefile` — `test`, `demo`, `warnings`, `analyze`, `all`, `clean`
+
+Use this layout when the user wants to:
+
+- file a bug-review snippet into a permanent example
+- mock a Google / FAANG-style interview round (read code, find bugs, fix, justify)
+- teach a particular bug pattern, error-handling convention, or testing methodology
+
+A reference implementation of this layout is at [`interview/google_stack_with_min/`](./interview/google_stack_with_min/).
 
 ## New problem initialization
 
@@ -124,6 +148,33 @@ When the user explicitly says the goal is "for Google LeetCode interview" or equ
    - the baseline approach
    - the recommended Google interview approach
    - why that recommendation is better for interview discussion
+
+### Interview review mode
+
+Trigger when the user pastes a piece of code (often buggy) and asks you to review, fix, trace, save as an interview example, or teach how to find such bugs. Default to the **Interview review style** folder layout (see "Folder styles" above) and place new content under `interview/<topic>/`.
+
+Standard workflow:
+
+1. **Bug audit first.** Identify all bugs and categorize each (off-by-one, uninitialized read, error-code conflation, API design, memory, UB, etc.). Do this before writing any fix.
+2. **`solution.c`.** Provide a clean fix that addresses every bug. Use `static` for module-private globals. Wrap any demo `main` with `#ifndef SOLUTION_LIB` (or similar) so the same source can be linked into `tests.c` without symbol collision. Add a `stack_reset` / `*_reset` helper so tests can isolate state between cases.
+3. **`original.c`.** Keep the user's original code verbatim — do not silently fix it. The contrast is the teaching tool.
+4. **`README.md`.** Bug list with cause + fix per item, plus any natural follow-up (e.g. O(1) min via parallel stack). Cross-link to `TRACE.md` and `TESTING.md`.
+5. **`TRACE.md`.** Walk through one concrete operation sequence step by step. For each step show: the code path taken, the internal state (array contents, count, top index), an ASCII diagram, and a contrast against the buggy behaviour where relevant.
+6. **`tests.c`.** Cover at minimum: empty-container error paths with poisoned `*err`, single-element cases, capacity / resize cases, "popped error sentinel as legitimate value" cases (e.g. `push(-1)` then `pop`), and a property-based random sequence against a reference implementation. Each `EXPECT_EQ` must compare an exact value, not just non-zero / non-NULL.
+7. **`bug_demo.c`.** Per-bug demonstration against `original.c`. Use memory poisoning (e.g. `values_[1] = 0xCAFEBABE;` before the buggy read) so the wrong value is unmistakable, since within-allocation uninitialized reads are not caught by ASan and the sandbox may lack MSan / Valgrind.
+8. **`Makefile`.** Targets: `test` (link `tests.c` + `solution.c` with `-fsanitize=address,undefined`), `demo` (link `bug_demo.c` + `original.c`), `warnings` (compile both with `-Wall -Wextra -Wuninitialized -O2` to surface uninitialized-variable warnings), `analyze` (`-fanalyzer`), `all`, `clean`.
+9. **`TESTING.md`.** Methodology document: the four-layer approach (precise tests + sanitizer + compiler warnings + static analysis), a per-bug × detection-tool matrix, and a reusable checklist. Include real captured output from `make test`, `make demo`, and `make warnings` so the reader can see what each tool actually catches.
+10. **Wiki / journal entry.** Append an `@<request>` entry to the top-level `README.md` linking every new file produced.
+
+Bilingual rule for this mode:
+
+- Markdown teaching files (`README.md`, `TRACE.md`, `TESTING.md`) follow the language the user is using in the conversation (Traditional Chinese by default for this repo).
+- Inline `.c` comments stay consistent with the surrounding repo convention.
+
+Build / tooling assumptions:
+
+- The reference setup uses `gcc` only (no `clang`, `valgrind`, `cppcheck` available in the default sandbox). Design `bug_demo.c` to surface bugs visibly without those tools, but document in `TESTING.md` what MSan / Valgrind would have caught.
+- Use `-fsanitize=address,undefined` whenever building tests, even if those sanitizers do not catch this particular bug class — they are cheap and protect against regressions.
 
 ### Traditional Chinese (繁體中文) annotation and diagram rules
 

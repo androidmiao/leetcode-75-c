@@ -177,4 +177,35 @@ https://leetcode.com/problem-list/wl94y6ih/ @problem-list_linux_todo.md 請照�
 https://leetcode.com/problems/lru-cache/description/?envType=problem-list-v2&envId=wl94y6ih https://leetcode.com/problems/lru-cache/editorial/?envType=problem-list-v2&envId=wl94y6ih 依據 SKILL.md 來初始化 146_LRU Cache
 
 
+@把這份有 bug 的 stack 程式（push / pop / peek / min）整理成 Google interview 範例，並補上操作流程追蹤與「如何抓出這類 bug」的測試方法論
 
+已建立 [interview/google_stack_with_min/](/Users/alex.miao/Documents/GitHub/leetcode-75-c/interview/google_stack_with_min/) 完整資料夾，內容如下：
+
+**程式碼**
+- [original.c](/Users/alex.miao/Documents/GitHub/leetcode-75-c/interview/google_stack_with_min/original.c) — 候選人原始版本，含 5 個 bug（保持原狀供對照）
+- [solution.c](/Users/alex.miao/Documents/GitHub/leetcode-75-c/interview/google_stack_with_min/solution.c) — 修正版 + driver
+
+**5 個 bug 分析**：`pop` 用後置遞減導致差一錯誤、`peek` 同樣的差一錯誤、`peek` 成功路徑漏寫 `*err = 0`、`pop` 在空棧 `return *err` 把 `-1` 當錯誤碼與合法資料混淆、`min()` 在空棧回傳未初始化變數。完整分析見 [README.md](/Users/alex.miao/Documents/GitHub/leetcode-75-c/interview/google_stack_with_min/README.md)。
+
+**操作序列追蹤** `push(2) → peek → push(8) → peek → push(1) → pop → min` 的逐步狀態快照、每一步的程式碼路徑、ASCII 圖示、與舊版錯誤行為的對比，見 [TRACE.md](/Users/alex.miao/Documents/GitHub/leetcode-75-c/interview/google_stack_with_min/TRACE.md)。
+
+**測試方法論**「精準測試 + Sanitizer + 編譯器警告 + 靜態分析」四層夾擊，每個 bug 對應到哪些工具能抓的對照表、可重用的 checklist，見 [TESTING.md](/Users/alex.miao/Documents/GitHub/leetcode-75-c/interview/google_stack_with_min/TESTING.md)。
+
+**測試工具**
+- [tests.c](/Users/alex.miao/Documents/GitHub/leetcode-75-c/interview/google_stack_with_min/tests.c) — 16 個測試（投毒、邊界、property-based 對拍 5000 次）
+- [bug_demo.c](/Users/alex.miao/Documents/GitHub/leetcode-75-c/interview/google_stack_with_min/bug_demo.c) — 對 `original.c` 個別示範每個 bug，用記憶體投毒讓問題在沒有 MSan / Valgrind 的環境也清楚可見
+- [Makefile](/Users/alex.miao/Documents/GitHub/leetcode-75-c/interview/google_stack_with_min/Makefile) — `make test / demo / warnings / analyze / all`
+
+**實測結果**：`make test` 對 `solution.c` 全部 16 個測試 PASS、ASan + UBSan 乾淨；`make demo` 對 `original.c` 五個 bug 全部觸發 `>>> BUG CONFIRMED`；`make warnings` 在 `original.c` 的 `min()` 第 70 行直接抓到 `‘v’ may be used uninitialized`，同樣 flag 編 `solution.c` 完全乾淨。
+
+
+@請更新wiki
+
+已把這次 mock review 的整套模式同步進 [SKILL.md](/Users/alex.miao/Documents/GitHub/leetcode-75-c/SKILL.md)，未來新對話可以直接用 `用 leetcode-75-c-workflow 幫我把 X 整理成 Google interview mock review` 觸發。
+
+新增的 skill 內容：
+
+- 在「Use this skill for...」清單加上 mock interview / code-review 用途。
+- 「Folder styles」新增第三種 **Interview review style**，定義 `interview/<topic>/` 底下的標準檔案組（`original.c` / `solution.c` / `README.md` / `TRACE.md` / `TESTING.md` / `tests.c` / `bug_demo.c` / `Makefile`），並指向 [`interview/google_stack_with_min/`](/Users/alex.miao/Documents/GitHub/leetcode-75-c/interview/google_stack_with_min/) 作為參考實作。
+- 新增 **Interview review mode** 章節，列出 10 步驟標準流程：bug 審計 → `solution.c` / `original.c` → `README.md` → `TRACE.md` → `tests.c`（投毒 + property-based）→ `bug_demo.c`（記憶體投毒讓 bug 在沒 MSan / Valgrind 的環境也可見）→ `Makefile`（test / demo / warnings / analyze / all / clean）→ `TESTING.md`（含實測輸出）→ wiki 紀錄。
+- 註明 sandbox 工具假設：只有 gcc，沒有 clang / valgrind / cppcheck，所以 `bug_demo.c` 設計上要不依賴 MSan 也能顯示 bug。

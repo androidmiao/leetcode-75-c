@@ -139,6 +139,8 @@ void bfs(int start, GraphNode* nodes, int nodeCount) {
 
 使用 DFS 進行拓撲排序，記錄後序遍歷順序。
 
+> 參見：[[topological-sort]] 是拓撲排序的主頁，包含 Kahn BFS、DFS 三色、邊方向與課程表類題目的完整整理。本節保留為 graph pattern 的速查入口。
+
 ```c
 typedef struct {
     int items[MAX_NODES];
